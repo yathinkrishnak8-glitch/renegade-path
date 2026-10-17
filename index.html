@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Path of the Obsidian Lotus — 2D Anime Sakuga RPG</title>
+  <title>Path of the Obsidian Lotus — Winds of Ezo-koku (Masterclass 2D Wuxia RPG)</title>
   <style>
     :root {
-      --ink: #06070b;
-      --paper: #f4efe6;
+      --ink: #05060a;
+      --paper: #f3ede2;
       --crimson: #e03131;
       --gold: #fcc419;
-      --obsidian: #ae3ec9;
+      --jade: #38d9a9;
       --cyan: #22b8cf;
+      --obsidian: #be4bdb;
       --glass: rgba(8, 10, 16, 0.82);
-      --border: rgba(244, 239, 230, 0.22);
+      --border: rgba(243, 237, 226, 0.22);
     }
 
     * {
@@ -35,7 +36,7 @@
       color: var(--paper);
     }
 
-    #sakuga-canvas {
+    #wuxia-canvas {
       position: fixed;
       inset: 0;
       width: 100%;
@@ -44,7 +45,7 @@
       z-index: 1;
     }
 
-    /* HUD OVERLAY */
+    /* HUD LAYER */
     #hud {
       position: fixed;
       inset: 0;
@@ -53,10 +54,10 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: clamp(10px, 2vw, 22px);
+      padding: clamp(10px, 2vw, 20px);
     }
 
-    .top-row {
+    .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
@@ -64,61 +65,60 @@
       width: 100%;
     }
 
-    .player-card {
+    .vitals-card {
       background: var(--glass);
       border: 1px solid var(--border);
       border-left: 4px solid var(--crimson);
       padding: 10px 14px;
-      width: min(310px, 52vw);
-      backdrop-filter: blur(6px);
+      width: min(325px, 54vw);
+      backdrop-filter: blur(8px);
       border-radius: 4px;
     }
 
-    .char-header {
+    .vitals-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 6px;
     }
 
-    .char-name {
-      font-size: clamp(0.82rem, 2vw, 1rem);
+    .hero-name {
+      font-size: clamp(0.8rem, 1.9vw, 0.98rem);
       font-weight: bold;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--paper);
     }
 
-    .stance-pill {
-      font-size: 0.68rem;
+    .stance-tag {
+      font-size: 0.66rem;
       padding: 2px 8px;
       border-radius: 3px;
-      background: rgba(252, 196, 25, 0.18);
-      border: 1px solid var(--gold);
-      color: var(--gold);
+      border: 1px solid var(--jade);
+      color: var(--jade);
+      background: rgba(56, 217, 169, 0.14);
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
 
-    .bar-wrap {
+    .bar-row {
       margin-bottom: 5px;
     }
 
     .bar-label {
       display: flex;
       justify-content: space-between;
-      font-size: 0.64rem;
+      font-size: 0.62rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: #b8b2a6;
       margin-bottom: 2px;
     }
 
-    .bar-bg {
+    .bar-track {
       width: 100%;
-      height: 8px;
+      height: 7px;
       background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.14);
       overflow: hidden;
     }
 
@@ -129,20 +129,49 @@
       transition: transform 0.1s ease-out;
     }
 
-    .bar-fill.hp { background: linear-gradient(90deg, #8a1111, #ff3b3b); }
+    .bar-fill.hp { background: linear-gradient(90deg, #8a1111, #ff4d4d); }
     .bar-fill.posture { background: linear-gradient(90deg, #e67700, #ffd43b); }
-    .bar-fill.ichor { background: linear-gradient(90deg, #5f3dc4, #da77f2); }
+    .bar-fill.ichor { background: linear-gradient(90deg, #5f3dc4, #e599f7); }
 
-    /* Boss HUD Top Center */
-    #boss-banner {
+    .zone-card {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-right: 4px solid var(--gold);
+      padding: 8px 14px;
+      text-align: right;
+      backdrop-filter: blur(8px);
+      border-radius: 4px;
+    }
+
+    .zone-sub {
+      font-size: 0.64rem;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+
+    .zone-title {
+      font-size: clamp(0.82rem, 1.9vw, 1.02rem);
+      font-weight: bold;
+      letter-spacing: 0.06em;
+    }
+
+    .zone-meta {
+      font-size: 0.68rem;
+      color: #ced4da;
+      margin-top: 4px;
+    }
+
+    /* BOSS BANNER */
+    #boss-hud {
       position: fixed;
       top: 14px;
       left: 50%;
       transform: translateX(-50%) translateY(-25px);
-      width: min(440px, 76vw);
+      width: min(460px, 78vw);
       background: var(--glass);
-      border: 1px solid rgba(224, 49, 49, 0.5);
-      padding: 8px 14px;
+      border: 1px solid rgba(224, 49, 49, 0.55);
+      padding: 8px 16px;
       text-align: center;
       opacity: 0;
       transition: opacity 0.35s ease, transform 0.35s ease;
@@ -150,50 +179,26 @@
       z-index: 12;
     }
 
-    #boss-banner.active {
+    #boss-hud.active {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
 
-    .boss-title {
-      font-size: clamp(0.78rem, 1.8vw, 0.95rem);
+    .boss-name {
+      font-size: clamp(0.76rem, 1.8vw, 0.94rem);
       letter-spacing: 0.16em;
       text-transform: uppercase;
       color: #ffa8a8;
       margin-bottom: 4px;
     }
 
-    /* Zone Badge Top Right */
-    .zone-card {
-      background: var(--glass);
-      border: 1px solid var(--border);
-      border-right: 4px solid var(--gold);
-      padding: 8px 12px;
-      text-align: right;
-      backdrop-filter: blur(6px);
-      border-radius: 4px;
-    }
-
-    .zone-act {
-      font-size: 0.65rem;
-      letter-spacing: 0.2em;
-      color: var(--gold);
-      text-transform: uppercase;
-    }
-
-    .zone-title {
-      font-size: clamp(0.8rem, 1.9vw, 1rem);
-      font-weight: bold;
-      letter-spacing: 0.06em;
-    }
-
-    /* ANIME LETTERBOX CUTSCENE BARS & DIALOGUE BOX */
+    /* WIDESCREEN ANIME CUTSCENE BARS */
     .letterbox-top, .letterbox-bottom {
       position: fixed;
       left: 0;
       width: 100%;
-      height: 13vh;
-      background: #020305;
+      height: 12vh;
+      background: #020306;
       z-index: 18;
       transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
       pointer-events: none;
@@ -202,23 +207,23 @@
     .letterbox-top { top: 0; transform: translateY(-100%); border-bottom: 1px solid rgba(252,196,25,0.3); }
     .letterbox-bottom { bottom: 0; transform: translateY(100%); border-top: 1px solid rgba(252,196,25,0.3); }
 
-    body.cutscene-mode .letterbox-top,
-    body.cutscene-mode .letterbox-bottom {
+    body.cutscene-active .letterbox-top,
+    body.cutscene-active .letterbox-bottom {
       transform: translateY(0);
     }
 
-    #cutscene-panel {
+    #dialogue-box {
       position: fixed;
-      bottom: 3.5vh;
+      bottom: 3vh;
       left: 50%;
       transform: translateX(-50%) translateY(30px);
       width: min(760px, 94vw);
-      background: linear-gradient(135deg, rgba(10, 12, 20, 0.96), rgba(18, 12, 24, 0.98));
+      background: linear-gradient(135deg, rgba(8, 10, 18, 0.96), rgba(18, 11, 24, 0.98));
       border: 1px solid var(--gold);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.95);
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
       padding: 14px 18px;
       z-index: 25;
       opacity: 0;
@@ -226,58 +231,51 @@
       transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
-    #cutscene-panel.active {
+    #dialogue-box.active {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
       pointer-events: auto;
     }
 
-    .portrait-frame {
-      width: 74px;
-      height: 74px;
-      flex-shrink: 0;
+    .dlg-portrait {
+      width: 68px;
+      height: 68px;
       border: 2px solid var(--crimson);
-      background: radial-gradient(circle at 50% 35%, #2b1321, #07080d);
+      background: #0b0d14;
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
     }
 
-    .dialogue-content {
-      flex: 1;
-    }
-
-    .speaker-tag {
-      font-size: 0.78rem;
+    .dlg-body { flex: 1; }
+    .dlg-speaker {
+      font-size: 0.75rem;
       letter-spacing: 0.2em;
-      text-transform: uppercase;
       color: var(--gold);
+      text-transform: uppercase;
       margin-bottom: 4px;
       font-weight: bold;
     }
-
-    .dialogue-line {
-      font-size: clamp(0.88rem, 2.1vw, 1.02rem);
-      line-height: 1.5;
+    .dlg-text {
+      font-size: clamp(0.84rem, 2vw, 1rem);
+      line-height: 1.48;
       color: var(--paper);
     }
-
-    .dialogue-next {
-      background: rgba(224, 49, 49, 0.25);
+    .dlg-btn {
+      background: rgba(224, 49, 49, 0.28);
       border: 1px solid var(--crimson);
       color: var(--paper);
       padding: 8px 14px;
       font-family: inherit;
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       letter-spacing: 0.14em;
       text-transform: uppercase;
       cursor: pointer;
-      flex-shrink: 0;
     }
 
-    /* MOBILE MULTI-TOUCH VIRTUAL CONTROLS */
-    #mobile-controls {
+    /* MOBILE TOUCH CONTROLS + DESKTOP ACTION PAD */
+    #touch-layer {
       position: fixed;
       inset: 0;
       z-index: 15;
@@ -285,53 +283,51 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      padding: clamp(14px, 3vw, 28px);
+      padding: clamp(12px, 2.6vw, 26px);
     }
 
-    body.cutscene-mode #mobile-controls {
+    body.cutscene-active #touch-layer {
       opacity: 0;
       pointer-events: none;
     }
 
-    /* Left Virtual Thumbstick */
-    #joystick-zone {
-      width: 136px;
-      height: 136px;
+    #stick-base {
+      width: 138px;
+      height: 138px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(10,12,18,0.65) 100%);
-      border: 2px solid rgba(244, 239, 230, 0.24);
+      background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(8,10,16,0.68) 100%);
+      border: 2px solid rgba(243, 237, 226, 0.25);
       position: relative;
       pointer-events: auto;
       backdrop-filter: blur(4px);
     }
 
-    #joystick-knob {
+    #stick-nub {
       width: 54px;
       height: 54px;
       border-radius: 50%;
       background: radial-gradient(circle at 30% 30%, var(--gold), #b45309);
       border: 2px solid var(--paper);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       pointer-events: none;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.85);
     }
 
-    /* Right Anime Action Pad */
-    .action-cluster {
+    .btn-wheel {
       position: relative;
-      width: 225px;
-      height: 175px;
+      width: 245px;
+      height: 195px;
       pointer-events: none;
     }
 
-    .act-btn {
+    .wuxia-btn {
       position: absolute;
       border-radius: 50%;
-      border: 2px solid rgba(244, 239, 230, 0.35);
-      background: rgba(12, 15, 24, 0.82);
+      border: 2px solid rgba(243, 237, 226, 0.35);
+      background: rgba(10, 13, 22, 0.84);
       color: var(--paper);
       font-family: inherit;
       font-weight: bold;
@@ -341,96 +337,37 @@
       justify-content: center;
       pointer-events: auto;
       cursor: pointer;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.85);
-      transition: transform 0.08s ease, background 0.12s ease;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.85);
+      transition: transform 0.08s ease;
     }
 
-    .act-btn:active, .act-btn.pressed {
+    .wuxia-btn:active, .wuxia-btn.active {
       transform: scale(0.88);
       border-color: var(--gold);
     }
 
-    .act-btn .kanji {
-      font-size: 1.15rem;
-      line-height: 1;
-    }
+    .wuxia-btn .k { font-size: 1.12rem; line-height: 1; }
+    .wuxia-btn .s { font-size: 0.54rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--gold); margin-top: 2px; }
 
-    .act-btn .sub {
-      font-size: 0.56rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-top: 2px;
-    }
+    #b-slash { width: 78px; height: 78px; right: 2px; bottom: 2px; background: radial-gradient(circle, rgba(224,49,49,0.68), rgba(75,10,10,0.92)); border-color: #ff6b6b; }
+    #b-parry { width: 62px; height: 62px; right: 90px; bottom: 4px; background: radial-gradient(circle, rgba(252,196,25,0.48), rgba(60,40,5,0.92)); border-color: var(--gold); }
+    #b-jump  { width: 64px; height: 64px; right: 82px; bottom: 76px; background: radial-gradient(circle, rgba(56,217,169,0.5), rgba(8,48,38,0.92)); border-color: var(--jade); }
+    #b-dash  { width: 56px; height: 56px; right: 158px; bottom: 46px; background: radial-gradient(circle, rgba(34,184,207,0.48), rgba(8,42,52,0.92)); border-color: var(--cyan); }
+    #b-ult   { width: 62px; height: 62px; right: 8px; bottom: 92px; background: radial-gradient(circle, rgba(190,75,219,0.65), rgba(45,10,60,0.92)); border-color: #e599f7; }
+    #b-stance{ width: 48px; height: 48px; right: 152px; bottom: 114px; }
+    #b-heal  { width: 48px; height: 48px; right: 90px; bottom: 146px; border-color: #51cf66; }
 
-    /* Primary Slash Button (Bottom Right) */
-    #btn-slash {
-      width: 78px;
-      height: 78px;
-      right: 4px;
-      bottom: 4px;
-      background: radial-gradient(circle, rgba(224, 49, 49, 0.65), rgba(80, 12, 12, 0.9));
-      border-color: #ff6b6b;
-    }
-
-    /* Deflect / Parry Button (Left of Slash) */
-    #btn-parry {
-      width: 64px;
-      height: 64px;
-      right: 92px;
-      bottom: 8px;
-      background: radial-gradient(circle, rgba(252, 196, 25, 0.45), rgba(65, 45, 5, 0.9));
-      border-color: var(--gold);
-    }
-
-    /* Dash / Jump-Step Button (Top Left Arc) */
-    #btn-dash {
-      width: 58px;
-      height: 58px;
-      right: 152px;
-      bottom: 58px;
-      background: radial-gradient(circle, rgba(34, 184, 207, 0.45), rgba(10, 45, 55, 0.9));
-      border-color: var(--cyan);
-    }
-
-    /* Ultimate Hiken Button (Top Above Slash) */
-    #btn-ult {
-      width: 64px;
-      height: 64px;
-      right: 12px;
-      bottom: 92px;
-      background: radial-gradient(circle, rgba(174, 62, 201, 0.65), rgba(45, 10, 60, 0.92));
-      border-color: #e599f7;
-    }
-
-    /* Stance Cycle & Heal Mini Buttons */
-    #btn-stance {
-      width: 50px;
-      height: 50px;
-      right: 84px;
-      bottom: 84px;
-    }
-
-    #btn-heal {
-      width: 48px;
-      height: 48px;
-      right: 146px;
-      bottom: 124px;
-      border-color: #51cf66;
-    }
-
-    /* Context Shrine / Lotus Action Button */
-    #btn-interact {
+    #context-action {
       position: fixed;
-      bottom: 24%;
+      bottom: 23%;
       left: 50%;
       transform: translateX(-50%);
       background: linear-gradient(90deg, #5f1414, #b02525);
       border: 2px solid var(--gold);
       color: var(--paper);
-      padding: 10px 24px;
+      padding: 10px 22px;
       font-family: inherit;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       letter-spacing: 0.14em;
       text-transform: uppercase;
       border-radius: 4px;
@@ -438,16 +375,16 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s ease;
-      box-shadow: 0 0 25px rgba(252, 196, 25, 0.5);
+      box-shadow: 0 0 24px rgba(252, 196, 25, 0.5);
     }
 
-    #btn-interact.visible {
+    #context-action.visible {
       opacity: 1;
       pointer-events: auto;
     }
 
-    /* Ending Choice Modal */
-    #ending-modal {
+    /* ENDING MODAL */
+    #ending-overlay {
       position: fixed;
       inset: 0;
       background: rgba(4, 6, 12, 0.92);
@@ -461,12 +398,12 @@
       transition: opacity 0.4s ease;
     }
 
-    #ending-modal.visible {
+    #ending-overlay.visible {
       opacity: 1;
       pointer-events: auto;
     }
 
-    .ending-card {
+    .ending-box {
       max-width: 560px;
       width: 100%;
       background: #0b0e17;
@@ -475,156 +412,105 @@
       text-align: center;
     }
 
-    .ending-card h2 {
-      font-size: 1.65rem;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 12px;
-    }
-
-    .ending-card p {
-      font-size: 0.95rem;
-      line-height: 1.6;
-      color: #d8d2c5;
-      margin-bottom: 22px;
-    }
-
-    .choice-row {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .choice-btn {
-      background: #8a1515;
-      border: 1px solid var(--gold);
-      color: var(--paper);
-      padding: 12px 20px;
-      font-family: inherit;
-      font-size: 0.82rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      cursor: pointer;
-    }
+    .ending-box h2 { color: var(--gold); letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 12px; }
+    .ending-box p { color: #d8d2c5; line-height: 1.6; margin-bottom: 22px; font-size: 0.95rem; }
+    .ending-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .end-btn { background: #8a1515; border: 1px solid var(--gold); color: var(--paper); padding: 12px 18px; font-family: inherit; text-transform: uppercase; letter-spacing: 0.12em; cursor: pointer; font-size: 0.8rem; }
   </style>
 </head>
 <body>
 
-  <canvas id="sakuga-canvas"></canvas>
+  <canvas id="wuxia-canvas"></canvas>
 
-  <!-- Anime Widescreen Cutscene Bars -->
   <div class="letterbox-top"></div>
   <div class="letterbox-bottom"></div>
 
-  <!-- Top HUD -->
   <div id="hud">
-    <div class="top-row">
-      <div class="player-card">
-        <div class="char-header">
-          <span class="char-name">Jinzo • Oath-Breaker</span>
-          <span class="stance-pill" id="stance-label">Wind Stance</span>
+    <div class="top-bar">
+      <div class="vitals-card">
+        <div class="vitals-head">
+          <span class="hero-name">Jinzo • Wind-Walker</span>
+          <span class="stance-tag" id="hud-stance">Gale Form</span>
         </div>
-        <div class="bar-wrap">
-          <div class="bar-label"><span>Vitality</span><span id="hp-val">100/100</span></div>
-          <div class="bar-bg"><div class="bar-fill hp" id="hp-bar"></div></div>
+        <div class="bar-row">
+          <div class="bar-label"><span>Vitality</span><span id="hud-hp-txt">100/100</span></div>
+          <div class="bar-track"><div class="bar-fill hp" id="hud-hp-bar"></div></div>
         </div>
-        <div class="bar-wrap">
-          <div class="bar-label"><span>Posture</span><span id="posture-val">0%</span></div>
-          <div class="bar-bg" style="height:6px;"><div class="bar-fill posture" id="posture-bar" style="transform:scaleX(0);"></div></div>
+        <div class="bar-row">
+          <div class="bar-label"><span>Posture</span><span id="hud-post-txt">0%</span></div>
+          <div class="bar-track" style="height:5px;"><div class="bar-fill posture" id="hud-post-bar" style="transform:scaleX(0);"></div></div>
         </div>
-        <div class="bar-wrap" style="margin-bottom:0;">
-          <div class="bar-label"><span>Obsidian Art (Hiken)</span><span id="ichor-val">100%</span></div>
-          <div class="bar-bg" style="height:6px;"><div class="bar-fill ichor" id="ichor-bar"></div></div>
+        <div class="bar-row" style="margin-bottom:0;">
+          <div class="bar-label"><span>Obsidian Qi (Hiken)</span><span id="hud-qi-txt">100%</span></div>
+          <div class="bar-track" style="height:5px;"><div class="bar-fill ichor" id="hud-qi-bar"></div></div>
         </div>
       </div>
 
       <div class="zone-card">
-        <div class="zone-act" id="zone-act">Act I • Zone I</div>
-        <div class="zone-title" id="zone-name">The Ashen Shore</div>
-        <div style="font-size:0.7rem; color:#adb5bd; margin-top:4px;">Gourds: <strong id="gourd-val" style="color:#51cf66;">3</strong> | Slag: <strong id="slag-val" style="color:#fcc419;">0</strong></div>
+        <div class="zone-sub" id="hud-zone-act">Act I • Zone I</div>
+        <div class="zone-title" id="hud-zone-name">The Shattered Armada & Cliffs</div>
+        <div class="zone-meta">
+          Elixir: <strong id="hud-gourd" style="color:#51cf66;">3</strong> |
+          Slag: <strong id="hud-slag" style="color:#fcc419;">0</strong> |
+          Blade: <strong id="hud-sheath" style="color:#38d9a9;">Drawn</strong>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Boss Health & Posture Banner -->
-  <div id="boss-banner">
-    <div class="boss-title" id="boss-name">Rotted Hatamoto • Gatekeeper</div>
-    <div class="bar-bg" style="height:9px; margin-bottom:4px;"><div class="bar-fill hp" id="boss-hp"></div></div>
-    <div class="bar-bg" style="height:5px;"><div class="bar-fill posture" id="boss-posture" style="transform:scaleX(0);"></div></div>
+  <div id="boss-hud">
+    <div class="boss-name" id="boss-name-txt">General Kazan • The Rotted Hatamoto</div>
+    <div class="bar-track" style="height:9px; margin-bottom:4px;"><div class="bar-fill hp" id="boss-hp-bar"></div></div>
+    <div class="bar-track" style="height:5px;"><div class="bar-fill posture" id="boss-post-bar" style="transform:scaleX(0);"></div></div>
   </div>
 
-  <!-- Interactive Context Prompt (Shrine / NPC / Lotus) -->
-  <button id="btn-interact">Commune with Shrine [E]</button>
+  <button id="context-action">Commune with Jizo Shrine [E]</button>
 
-  <!-- Anime Cutscene Dialogue Box -->
-  <div id="cutscene-panel">
-    <div class="portrait-frame" id="cutscene-portrait"></div>
-    <div class="dialogue-content">
-      <div class="speaker-tag" id="cutscene-speaker">JINZO</div>
-      <div class="dialogue-line" id="cutscene-text">...</div>
+  <div id="dialogue-box">
+    <div class="dlg-portrait" id="dlg-portrait"></div>
+    <div class="dlg-body">
+      <div class="dlg-speaker" id="dlg-speaker">JINZO</div>
+      <div class="dlg-text" id="dlg-text">...</div>
     </div>
-    <button class="dialogue-next" id="cutscene-next-btn">Next ▶</button>
+    <button class="dlg-btn" id="dlg-next">Next ▶</button>
   </div>
 
-  <!-- Mobile Multi-Touch Controls + Desktop Clickable Pad -->
-  <div id="mobile-controls">
-    <div id="joystick-zone">
-      <div id="joystick-knob"></div>
+  <!-- Mobile Multi-Touch Virtual Controls -->
+  <div id="touch-layer">
+    <div id="stick-base">
+      <div id="stick-nub"></div>
     </div>
 
-    <div class="action-cluster">
-      <button class="act-btn" id="btn-slash">
-        <span class="kanji">斬</span>
-        <span class="sub">Slash [J]</span>
-      </button>
-      <button class="act-btn" id="btn-parry">
-        <span class="kanji">防</span>
-        <span class="sub">Deflect [K]</span>
-      </button>
-      <button class="act-btn" id="btn-dash">
-        <span class="kanji">瞬</span>
-        <span class="sub">Dash [L]</span>
-      </button>
-      <button class="act-btn" id="btn-ult">
-        <span class="kanji">秘</span>
-        <span class="sub">Hiken [U]</span>
-      </button>
-      <button class="act-btn" id="btn-stance">
-        <span class="kanji">型</span>
-        <span class="sub">Form [1-3]</span>
-      </button>
-      <button class="act-btn" id="btn-heal">
-        <span class="kanji">薬</span>
-        <span class="sub">Heal [R]</span>
-      </button>
+    <div class="btn-wheel">
+      <button class="wuxia-btn" id="b-slash"><span class="k">斬</span><span class="s">Slash [J]</span></button>
+      <button class="wuxia-btn" id="b-parry"><span class="k">防</span><span class="s">Deflect [K]</span></button>
+      <button class="wuxia-btn" id="b-jump"><span class="k">飛</span><span class="s">Qinggong [W]</span></button>
+      <button class="wuxia-btn" id="b-dash"><span class="k">瞬</span><span class="s">Step [L]</span></button>
+      <button class="wuxia-btn" id="b-ult"><span class="k">秘</span><span class="s">Hiken [U]</span></button>
+      <button class="wuxia-btn" id="b-stance"><span class="k">型</span><span class="s">Form [1-3]</span></button>
+      <button class="wuxia-btn" id="b-heal"><span class="k">薬</span><span class="s">Elixir [R]</span></button>
     </div>
   </div>
 
-  <!-- Final Lotus Decision Modal -->
-  <div id="ending-modal">
-    <div class="ending-card">
-      <h2 id="ending-title">The Obsidian Lotus Core</h2>
-      <p id="ending-desc">
-        The Hollow Shogun's armor crumbles into phantom ash. Before you levitates the Obsidian Lotus,
-        throbbing with ten thousand bound souls. Choose the fate of Ezo-koku:
+  <div id="ending-overlay">
+    <div class="ending-box">
+      <h2 id="end-title">The Obsidian Lotus Heart</h2>
+      <p id="end-desc">
+        The Hollow Shogun dissolves into luminous embers atop the Floating Sanctum. Before you levitates the Obsidian Lotus. Will you shatter it to return mortal sunrise to Ezo-koku, or claim its immortal twilight?
       </p>
-      <div class="choice-row" id="ending-choices">
-        <button class="choice-btn" id="choose-dawn">Shatter the Lotus (Restore Dawn)</button>
-        <button class="choice-btn" id="choose-eclipse" style="background:#4a154b;">Absorb the Lotus (Eternal Shogun)</button>
+      <div class="ending-btns" id="end-btns">
+        <button class="end-btn" id="btn-end-dawn">Shatter Lotus (Dawn Restored)</button>
+        <button class="end-btn" id="btn-end-twilight" style="background:#4a154b;">Bind Lotus (Immortal Sovereign)</button>
       </div>
     </div>
   </div>
 
   <script>
     /********************************************************************
-     * 1. WEB AUDIO SAKUGA SYNTHESIZER (Swords, Deflects, Anime Cut-In)
+     * 1. PROCEDURAL WEB AUDIO SYNTHESIZER (Blade Singing, Chiburi, Wind)
      ********************************************************************/
-    class SakugaAudio {
-      constructor() {
-        this.ctx = null;
-      }
+    class WuxiaAudio {
+      constructor() { this.ctx = null; }
       init() {
         if (!this.ctx) {
           const AC = window.AudioContext || window.webkitAudioContext;
@@ -632,95 +518,125 @@
         }
         if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
       }
-      slash(freq = 280) {
+      whoosh(pitch = 300, duration = 0.15) {
         this.init();
         if (!this.ctx) return;
         const now = this.ctx.currentTime;
-        const len = Math.floor(this.ctx.sampleRate * 0.14);
+        const len = Math.floor(this.ctx.sampleRate * duration);
         const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
         const d = buf.getChannelData(0);
         for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.sin((i / len) * Math.PI);
         const src = this.ctx.createBufferSource();
         src.buffer = buf;
-        const bp = this.ctx.createBiquadFilter();
-        bp.type = 'bandpass';
-        bp.frequency.setValueAtTime(freq, now);
-        bp.frequency.exponentialRampToValueAtTime(freq * 3.5, now + 0.13);
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(pitch, now);
+        filter.frequency.exponentialRampToValueAtTime(pitch * 3.4, now + duration);
+        filter.Q.value = 2.5;
         const g = this.ctx.createGain();
         g.gain.setValueAtTime(0.28, now);
-        g.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
-        src.connect(bp); bp.connect(g); g.connect(this.ctx.destination);
+        g.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        src.connect(filter); filter.connect(g); g.connect(this.ctx.destination);
         src.start(now);
       }
       clang(perfect = true) {
         this.init();
         if (!this.ctx) return;
         const now = this.ctx.currentTime;
-        const notes = perfect ? [1046, 1568, 2489, 3520] : [360, 540, 810];
-        notes.forEach((n, i) => {
+        const freqs = perfect ? [1180, 1760, 2640, 3820] : [380, 560, 840];
+        freqs.forEach((f, idx) => {
           const osc = this.ctx.createOscillator();
           const g = this.ctx.createGain();
-          osc.type = i % 2 === 0 ? 'triangle' : 'sine';
-          osc.frequency.setValueAtTime(n, now);
-          osc.frequency.exponentialRampToValueAtTime(n * 0.86, now + (perfect ? 0.5 : 0.18));
-          g.gain.setValueAtTime(perfect ? 0.22 / (i + 1) : 0.14, now);
-          g.gain.exponentialRampToValueAtTime(0.0001, now + (perfect ? 0.52 : 0.2));
+          osc.type = idx % 2 === 0 ? 'triangle' : 'sine';
+          osc.frequency.setValueAtTime(f, now);
+          osc.frequency.exponentialRampToValueAtTime(f * 0.86, now + (perfect ? 0.52 : 0.18));
+          g.gain.setValueAtTime(perfect ? 0.22 / (idx + 1) : 0.14, now);
+          g.gain.exponentialRampToValueAtTime(0.0001, now + (perfect ? 0.54 : 0.2));
           osc.connect(g); g.connect(this.ctx.destination);
-          osc.start(now); osc.stop(now + (perfect ? 0.54 : 0.22));
+          osc.start(now); osc.stop(now + (perfect ? 0.55 : 0.22));
         });
       }
-      ultBoom() {
+      sheathClick() {
         this.init();
         if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const g = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(190, now);
-        osc.frequency.exponentialRampToValueAtTime(28, now + 0.75);
-        g.gain.setValueAtTime(0.42, now);
-        g.gain.exponentialRampToValueAtTime(0.001, now + 0.78);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1950, now);
+        osc.frequency.exponentialRampToValueAtTime(620, now + 0.06);
+        g.gain.setValueAtTime(0.18, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
         osc.connect(g); g.connect(this.ctx.destination);
-        osc.start(now); osc.stop(now + 0.8);
+        osc.start(now); osc.stop(now + 0.07);
       }
     }
-    const audio = new SakugaAudio();
+    const sfx = new WuxiaAudio();
 
     /********************************************************************
-     * 2. CANVAS & WORLD DEFINITIONS (4 Seamless Horizontal Zones)
-     *    World X spans 0 to 6400 px
+     * 2. CANVAS & EXPANDED 10,000px MULTI-TIERED VERTICAL WORLD
      ********************************************************************/
-    const canvas = document.getElementById('sakuga-canvas');
+    const canvas = document.getElementById('wuxia-canvas');
     const ctx = canvas.getContext('2d');
     let W = window.innerWidth;
     let H = window.innerHeight;
-    let GROUND_Y = H * 0.76;
+    let BASE_GROUND = H * 0.78;
 
     function resize() {
       W = window.innerWidth;
       H = window.innerHeight;
-      canvas.width = W * Math.min(window.devicePixelRatio || 1, 2);
-      canvas.height = H * Math.min(window.devicePixelRatio || 1, 2);
-      ctx.setTransform(Math.min(window.devicePixelRatio || 1, 2), 0, 0, Math.min(window.devicePixelRatio || 1, 2), 0, 0);
-      GROUND_Y = H * 0.76;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      BASE_GROUND = H * 0.78;
     }
     window.addEventListener('resize', resize);
     resize();
 
     const ZONES = [
-      { id: 0, act: 'Act I • Zone I', name: 'The Ashen Shore & Pass', xStart: 0, xEnd: 1600, skyTop: '#070913', skyBot: '#1c1624', moonCol: '#f8f0dc', moonRadius: 68 },
-      { id: 1, act: 'Act II • Zone II', name: 'Whispering Bamboo Grove', xStart: 1600, xEnd: 3200, skyTop: '#04120e', skyBot: '#0f2922', moonCol: '#b2f2bb', moonRadius: 74 },
-      { id: 2, act: 'Act II • Zone III', name: 'The Mirror Lake Shrine', xStart: 3200, xEnd: 4800, skyTop: '#060c1f', skyBot: '#152642', moonCol: '#a5d8ff', moonRadius: 82 },
-      { id: 3, act: 'Act III • Zone IV', name: 'The Eclipse Citadel', xStart: 4800, xEnd: 6500, skyTop: '#16040a', skyBot: '#3b0918', moonCol: '#ff2a2a', moonRadius: 96 }
+      { id: 0, act: 'Act I • Zone I', name: 'Shattered Armada & Sea Cliffs', x0: 0, x1: 2400, sky0: '#060812', sky1: '#1d1626', moonCol: '#faeed7', r: 66 },
+      { id: 1, act: 'Act II • Zone II', name: 'Whispering Bamboo & Canopy Village', x0: 2400, x1: 5000, sky0: '#04120e', sky1: '#0d2b22', moonCol: '#b2f2bb', r: 74 },
+      { id: 2, act: 'Act II • Zone III', name: 'Sunken Mirror Lake & Pagodas', x0: 5000, x1: 7500, sky0: '#050b1c', sky1: '#122645', moonCol: '#99e9f2', r: 84 },
+      { id: 3, act: 'Act III • Zone IV', name: 'The Floating Eclipse Sanctum', x0: 7500, x1: 10200, sky0: '#180309', sky1: '#3d0817', moonCol: '#ff2a2a', r: 98 }
     ];
 
-    // Procedural World Props: Bamboo Stalks, Torii Gates, Shrines, Lanterns
-    const bambooStalks = [];
-    for (let x = 1620; x < 3160; x += 28) {
-      bambooStalks.push({
-        x: x + (Math.random() - 0.5) * 14,
-        h: 190 + Math.random() * 140,
+    // Walkable Multi-Tier Platforms (Curved Pagoda Roofs, Ship Decks, Bamboo Perches, Floating Sanctum Stones)
+    // hOffset is height above BASE_GROUND (positive = higher in air)
+    const platforms = [
+      // Zone 1: Shipwreck Upper Decks & Sea Cliff Outcrops
+      { x: 420, w: 240, hOffset: 95, type: 'wood', label: 'Galleon Poop Deck' },
+      { x: 760, w: 190, hOffset: 175, type: 'cliff', label: 'Sea Cliffwatch' },
+      { x: 1120, w: 260, hOffset: 115, type: 'pagoda', label: 'Torii Roof Eave' },
+      { x: 1560, w: 220, hOffset: 185, type: 'cliff', label: 'High Lookout Arch' },
+
+      // Zone 2: Bamboo Canopy Perches & Treetop Walkways
+      { x: 2680, w: 210, hOffset: 120, type: 'bamboo', label: 'Bamboo Canopy Branch' },
+      { x: 2980, w: 240, hOffset: 205, type: 'bamboo', label: 'High Bamboo Crown' },
+      { x: 3340, w: 310, hOffset: 140, type: 'pagoda', label: 'Treetop Tea Pavilion' },
+      { x: 3820, w: 220, hOffset: 220, type: 'bamboo', label: 'Wind-Walker Perch' },
+      { x: 4240, w: 280, hOffset: 125, type: 'wood', label: 'Suspension Rope Bridge' },
+
+      // Zone 3: Sunken Mirror Pagoda Tiers
+      { x: 5320, w: 320, hOffset: 110, type: 'pagoda', label: 'Lower Pagoda Eave' },
+      { x: 5400, w: 200, hOffset: 220, type: 'pagoda', label: 'Upper Pagoda Spire' },
+      { x: 5920, w: 260, hOffset: 145, type: 'pagoda', label: 'Bell Tower Roof' },
+      { x: 6420, w: 300, hOffset: 95, type: 'stone', label: 'Floating Lantern Pier' },
+
+      // Zone 4: Anti-Gravity Floating Citadel Stones
+      { x: 7780, w: 240, hOffset: 115, type: 'stone', label: 'Fractured Basalt Slab' },
+      { x: 8120, w: 260, hOffset: 210, type: 'stone', label: 'Ascension Monolith' },
+      { x: 8520, w: 340, hOffset: 140, type: 'pagoda', label: 'Imperial Roof Terrace' }
+    ];
+
+    // Interactive Sliceable Bamboo Forest (Zone 2)
+    const bambooForest = [];
+    for (let x = 2440; x < 4920; x += 32) {
+      bambooForest.push({
+        x: x + (Math.random() - 0.5) * 16,
+        h: 210 + Math.random() * 160,
         thick: 6 + Math.random() * 5,
+        swayPhase: Math.random() * Math.PI * 2,
         sliced: false,
         topY: 0,
         topVy: 0,
@@ -728,598 +644,814 @@
       });
     }
 
-    const toriiGates = [350, 1580, 3180, 4780, 5650];
+    // Foreground Blurred Silhouette Pillars/Branches (1.35x Parallax for Immersive Depth)
+    const fgSilhouettes = [];
+    for (let x = 300; x < 9800; x += 520) {
+      fgSilhouettes.push({
+        x,
+        w: 45 + Math.random() * 55,
+        type: x > 2400 && x < 5000 ? 'bamboo_fg' : 'pillar_fg'
+      });
+    }
+
+    // Shrines, Mystic NPC Kiri & Final Lotus
     const shrines = [
-      { x: 220, name: 'Shoreline Jizo Shrine', used: false },
-      { x: 2250, name: 'Bamboo Glade Shrine (Kiri)', isKiri: true },
-      { x: 3420, name: 'Mirror Water Shrine', used: false },
-      { x: 5050, name: 'Citadel Threshold Shrine', used: false }
+      { x: 250, name: 'Armada Coast Shrine' },
+      { x: 2540, name: 'Bamboo Mist Shrine' },
+      { x: 3490, name: 'Kiri • Blind Biwa Mystic', isKiri: true, hOffset: 140 }, // On Treetop Pavilion!
+      { x: 5160, name: 'Mirror Shore Shrine' },
+      { x: 7640, name: 'Eclipse Threshold Shrine' }
     ];
-    const lotusCore = { x: 6220 };
+    const lotusRelic = { x: 9650 };
 
     /********************************************************************
-     * 3. PLAYER & STANCE DEFINITIONS
+     * 3. STANCE CHOREOGRAPHY, VERLET CLOTH CHAINS & IK RIGGING
      ********************************************************************/
     const STANCES = [
-      { name: 'Wind Stance', color: '#38d9a9', dmg: 24, postureDmg: 22, speed: 1.18 },
-      { name: 'Moon Stance', color: '#fcc419', dmg: 34, postureDmg: 38, speed: 0.92 },
-      { name: 'Void Stance', color: '#da77f2', dmg: 28, postureDmg: 28, speed: 1.05 }
+      {
+        id: 'GALE',
+        name: 'Gale Form (Qinggong)',
+        color: '#38d9a9',
+        trailCol: 'rgba(56, 217, 169, 0.78)',
+        dmg: 24,
+        postureDmg: 22,
+        speedMult: 1.24,
+        jumpMult: 1.15
+      },
+      {
+        id: 'WATER',
+        name: 'Flowing Water (Iaijutsu)',
+        color: '#22b8cf',
+        trailCol: 'rgba(34, 184, 207, 0.82)',
+        dmg: 30,
+        postureDmg: 30,
+        speedMult: 1.04,
+        jumpMult: 1.0
+      },
+      {
+        id: 'MOON',
+        name: 'Crushing Moon (Odachi)',
+        color: '#ff6b6b',
+        trailCol: 'rgba(255, 107, 107, 0.85)',
+        dmg: 42,
+        postureDmg: 46,
+        speedMult: 0.88,
+        jumpMult: 0.92
+      }
     ];
 
+    function createVerletChain(count, segLen) {
+      return {
+        segLen,
+        pts: Array.from({ length: count }, () => ({ x: 180, y: 0, ox: 180, oy: 0 }))
+      };
+    }
+
+    function updateVerletChain(chain, anchorX, anchorY, windX, gravity, dt) {
+      const pts = chain.pts;
+      pts[0].x = anchorX;
+      pts[0].y = anchorY;
+      for (let i = 1; i < pts.length; i++) {
+        const p = pts[i];
+        const vx = (p.x - p.ox) * 0.88 + windX * dt;
+        const vy = (p.y - p.oy) * 0.88 + gravity * dt;
+        p.ox = p.x;
+        p.oy = p.y;
+        p.x += vx;
+        p.y += vy;
+      }
+      // Constraint relaxation
+      for (let iter = 0; iter < 3; iter++) {
+        for (let i = 1; i < pts.length; i++) {
+          const p1 = pts[i - 1];
+          const p2 = pts[i];
+          const dx = p2.x - p1.x;
+          const dy = p2.y - p1.y;
+          const d = Math.hypot(dx, dy) || 0.001;
+          const diff = (d - chain.segLen) / d;
+          p2.x -= dx * diff * 0.85;
+          p2.y -= dy * diff * 0.85;
+        }
+      }
+    }
+
     const player = {
-      x: 120,
-      y: 0, // Offset above GROUND_Y
+      x: 180,
+      h: 0, // Height above BASE_GROUND (0 = ground, >0 = in air or on platform)
       vx: 0,
-      vy: 0,
+      vh: 0,
       facing: 1,
+      jumpsLeft: 2,
+      grounded: true,
       hp: 100,
       maxHp: 100,
       posture: 0,
       maxPosture: 100,
-      ichor: 100,
-      maxIchor: 100,
+      qi: 100,
+      maxQi: 100,
       gourds: 3,
       slag: 0,
-      atkMult: 1.0,
+      atkBonus: 1.0,
       stanceIdx: 0,
-      state: 'IDLE', // IDLE, RUN, SLASH, PARRY, DASH, ULT
+      state: 'IDLE', // IDLE, RUN, JUMP, DOUBLE_JUMP, SLASH, PLUNGE, PARRY, DASH, ULT
       timer: 0,
-      comboStep: 0,
+      combo: 0,
       parryWindow: 0,
       invuln: 0,
-      scarfPoints: Array.from({ length: 7 }, () => ({ x: 120, y: 0 })),
-      checkpointX: 120
+      sheathed: false,
+      idleTime: 0,
+      sheathSparkTimer: 0,
+      checkpointX: 180,
+      // 3 Independent Verlet Physics Chains
+      hairChain: createVerletChain(6, 7),
+      scarfChain: createVerletChain(9, 9),
+      coatChain: createVerletChain(7, 8),
+      // Continuous Blade Tip History for Catmull-Rom / Bézier Ribbon Trail
+      bladeTrail: []
     };
 
     /********************************************************************
-     * 4. ENEMIES & BOSS ROSTER WITH CUTSCENE TRIGGERS
+     * 4. ENEMIES & BOSSES ACROSS THE 10,000px WORLD
      ********************************************************************/
     let enemies = [];
 
-    function initEnemies() {
+    function spawnWorldEnemies() {
       enemies = [
         // Zone 1
-        { name: 'Ashigaru Husk', x: 640, hp: 70, maxHp: 70, posture: 0, maxPosture: 60, dmg: 14, speed: 170, color: '#adb5bd', isBoss: false, slag: 15 },
-        { name: 'Spear Phantom', x: 1050, hp: 85, maxHp: 85, posture: 0, maxPosture: 75, dmg: 16, speed: 195, color: '#ced4da', isBoss: false, slag: 20 },
+        { name: 'Shipwreck Marauder Husk', x: 680, h: 0, hp: 80, maxHp: 80, posture: 0, maxPosture: 65, dmg: 15, speed: 185, color: '#adb5bd', slag: 15 },
+        { name: 'Cliffbow Spirit', x: 1180, h: 115, hp: 75, maxHp: 75, posture: 0, maxPosture: 60, dmg: 16, speed: 170, color: '#ffd43b', slag: 20 },
         {
-          name: 'Rotted Hatamoto • Gatekeeper', x: 1440, hp: 240, maxHp: 240, posture: 0, maxPosture: 120, dmg: 24, speed: 205, color: '#ff6b6b', isBoss: true, scale: 1.32, slag: 60,
+          name: 'General Kazan • The Rotted Hatamoto', x: 2050, h: 0, hp: 260, maxHp: 260, posture: 0, maxPosture: 130, dmg: 25, speed: 215, color: '#ff6b6b', isBoss: true, scale: 1.32, slag: 65,
           introSeen: false,
           dialogue: [
-            { speaker: 'ROTTED HATAMOTO', portrait: 'boss1', text: 'Turn back, Jinzo the Oath-Breaker! None who abandoned the Shogun’s keep may cross the Torii Gorge alive!' },
-            { speaker: 'JINZO', portrait: 'jinzo', text: 'Your steel is bound to a hollow vow, old friend. Allow my blade to sever your chains.' }
+            { speaker: 'GENERAL KAZAN', portrait: 'boss', text: 'You dare walk the Shattered Armada with that cursed blade, Jinzo?! By the Shogun’s decree, your oath ends at these cliffs!' },
+            { speaker: 'JINZO', portrait: 'jinzo', text: 'The sea wind has already eroded your banner, Kazan. Let my Gale Form grant you rest.' }
           ]
         },
         // Zone 2
-        { name: 'Bamboo Mist Ronin', x: 1980, hp: 100, maxHp: 100, posture: 0, maxPosture: 85, dmg: 18, speed: 230, color: '#63e6be', isBoss: false, slag: 25 },
-        { name: 'Grove Reaper', x: 2780, hp: 130, maxHp: 130, posture: 0, maxPosture: 100, dmg: 22, speed: 240, color: '#38d9a9', isBoss: false, slag: 35 },
+        { name: 'Canopy Stalk-Leaper', x: 2820, h: 0, hp: 105, maxHp: 105, posture: 0, maxPosture: 85, dmg: 18, speed: 240, color: '#38d9a9', slag: 25 },
+        { name: 'Mist Dual-Sabre Ronin', x: 3980, h: 0, hp: 135, maxHp: 135, posture: 0, maxPosture: 100, dmg: 22, speed: 250, color: '#63e6be', slag: 35 },
+        { name: 'Bamboo Crown Sentinel', x: 4620, h: 0, hp: 155, maxHp: 155, posture: 0, maxPosture: 110, dmg: 24, speed: 235, color: '#20c997', slag: 40 },
         // Zone 3
-        { name: 'Water Illusionist', x: 3750, hp: 125, maxHp: 125, posture: 0, maxPosture: 95, dmg: 20, speed: 245, color: '#74c0fc', isBoss: false, slag: 35 },
+        { name: 'Mirror Pagoda Phantom', x: 5580, h: 0, hp: 140, maxHp: 140, posture: 0, maxPosture: 95, dmg: 22, speed: 255, color: '#74c0fc', slag: 35 },
         {
-          name: 'Lady Chiyo • The Pale Weaver', x: 4450, hp: 340, maxHp: 340, posture: 0, maxPosture: 150, dmg: 28, speed: 265, color: '#e599f7', isBoss: true, scale: 1.35, slag: 100,
+          name: 'Lady Chiyo • The Pale Weaver', x: 6950, h: 0, hp: 360, maxHp: 360, posture: 0, maxPosture: 155, dmg: 29, speed: 275, color: '#e599f7', isBoss: true, scale: 1.36, slag: 110,
           introSeen: false,
           dialogue: [
-            { speaker: 'LADY CHIYO', portrait: 'boss2', text: 'Look upon the Mirror Lake, Jinzo. Even the moon weeps crimson threads over what you failed to protect.' },
-            { speaker: 'JINZO', portrait: 'jinzo', text: 'Step aside, Chiyo. Your illusions cannot hide the path to the Eclipse Citadel.' }
+            { speaker: 'LADY CHIYO', portrait: 'boss', text: 'Every ripple on Mirror Lake reflects a warrior you failed to save, Jinzo. Dance with my phantom threads!' },
+            { speaker: 'JINZO', portrait: 'jinzo', text: 'Reflections shatter when struck by true steel, Chiyo.' }
           ]
         },
         // Zone 4
-        { name: 'Citadel Imperial Executioner', x: 5340, hp: 170, maxHp: 170, posture: 0, maxPosture: 125, dmg: 26, speed: 220, color: '#fcc419', isBoss: false, scale: 1.18, slag: 50 },
+        { name: 'Imperial Eclipse Praetorian', x: 8360, h: 0, hp: 185, maxHp: 185, posture: 0, maxPosture: 130, dmg: 28, speed: 235, color: '#fcc419', scale: 1.18, slag: 55 },
         {
-          name: 'The Hollow Shogun • Vessel of the Lotus', x: 5940, hp: 480, maxHp: 480, posture: 0, maxPosture: 180, dmg: 34, speed: 255, color: '#ff2a2a', isBoss: true, scale: 1.5, slag: 200,
+          name: 'The Hollow Shogun • Sovereign of the Lotus', x: 9280, h: 0, hp: 520, maxHp: 520, posture: 0, maxPosture: 190, dmg: 36, speed: 265, color: '#ff2a2a', isBoss: true, scale: 1.52, slag: 250,
           introSeen: false,
           dialogue: [
-            { speaker: 'THE HOLLOW SHOGUN', portrait: 'boss3', text: 'THE OBSIDIAN LOTUS GRANTS ETERNAL STILLNESS! WHY DO YOU CLING TO MORTAL DAWN, OATH-BREAKER?!' },
-            { speaker: 'JINZO', portrait: 'jinzo', text: 'An eternity frozen in ash is no life at all. This ends with one final stroke!' }
+            { speaker: 'THE HOLLOW SHOGUN', portrait: 'boss', text: 'BEHOLD THE FLOATING SANCTUM! THE OBSIDIAN LOTUS HAS FROZEN TIME ITSELF—BOW BEFORE ETERNITY!' },
+            { speaker: 'JINZO', portrait: 'jinzo', text: 'A world without wind is a tomb. Witness the final secret of Ezo-koku!' }
           ]
         }
       ].map(e => ({
         ...e,
-        y: 0,
         facing: -1,
-        state: 'IDLE', // IDLE, CHASE, WINDUP, PERILOUS, SLASH, STAGGER, DEAD
+        state: 'IDLE',
         timer: 0,
         cooldown: 1.0,
         dead: false,
-        slashArcAlpha: 0
+        slashAlpha: 0,
+        scarf: createVerletChain(6, 8)
       }));
     }
-    initEnemies();
+    spawnWorldEnemies();
 
     /********************************************************************
-     * 5. ANIME CUTSCENE & PORTRAIT SYSTEM
+     * 5. ANIME CUTSCENE DIRECTOR
      ********************************************************************/
     let cutsceneActive = false;
-    let cutsceneQueue = [];
-    const cutscenePanel = document.getElementById('cutscene-panel');
-    const cutscenePortrait = document.getElementById('cutscene-portrait');
-    const cutsceneSpeaker = document.getElementById('cutscene-speaker');
-    const cutsceneText = document.getElementById('cutscene-text');
+    let cutsceneLines = [];
+    const dlgBox = document.getElementById('dialogue-box');
+    const dlgSpeaker = document.getElementById('dlg-speaker');
+    const dlgText = document.getElementById('dlg-text');
+    const dlgPortrait = document.getElementById('dlg-portrait');
 
-    function getPortraitSVG(type) {
-      if (type === 'jinzo') {
-        return `<svg viewBox="0 0 64 64" width="68" height="68">
-          <circle cx="32" cy="34" r="18" fill="#e6ccb2"/>
-          <path d="M8 26 L32 8 L56 26 Z" fill="#1f242d" stroke="#fcc419" stroke-width="2"/>
-          <path d="M18 32 L28 35 M36 35 L46 32" stroke="#111" stroke-width="2.5"/>
-          <path d="M22 24 L27 42" stroke="#e03131" stroke-width="2"/>
+    function renderPortraitSVG(kind) {
+      if (kind === 'jinzo') {
+        return `<svg viewBox="0 0 64 64" width="62" height="62">
+          <circle cx="32" cy="35" r="16" fill="#e6ccb2"/>
+          <path d="M12 22 Q32 4 52 22 L46 28 Q32 18 18 28 Z" fill="#181d28" stroke="#38d9a9" stroke-width="1.5"/>
+          <circle cx="32" cy="10" r="6" fill="#141821"/>
+          <path d="M21 33 L28 35 M36 35 L43 33" stroke="#111" stroke-width="2.4"/>
+          <path d="M23 26 L27 42" stroke="#e03131" stroke-width="2"/>
         </svg>`;
       }
-      return `<svg viewBox="0 0 64 64" width="68" height="68">
-        <circle cx="32" cy="34" r="19" fill="#2b1216"/>
-        <path d="M10 24 L32 6 L54 24 Z" fill="#8a1111" stroke="#ff6b6b" stroke-width="2"/>
+      return `<svg viewBox="0 0 64 64" width="62" height="62">
+        <circle cx="32" cy="35" r="18" fill="#291117"/>
+        <path d="M8 25 L32 6 L56 25 Z" fill="#7a1212" stroke="#ff6b6b" stroke-width="2"/>
         <circle cx="24" cy="34" r="3.5" fill="#ff2a2a"/>
         <circle cx="40" cy="34" r="3.5" fill="#ff2a2a"/>
       </svg>`;
     }
 
-    function startCutscene(lines) {
+    function playCutscene(lines) {
       cutsceneActive = true;
-      cutsceneQueue = [...lines];
-      document.body.classList.add('cutscene-mode');
-      cutscenePanel.classList.add('active');
-      advanceCutscene();
+      cutsceneLines = [...lines];
+      document.body.classList.add('cutscene-active');
+      dlgBox.classList.add('active');
+      nextCutsceneLine();
     }
 
-    function advanceCutscene() {
-      audio.init();
-      if (cutsceneQueue.length === 0) {
+    function nextCutsceneLine() {
+      sfx.init();
+      if (cutsceneLines.length === 0) {
         cutsceneActive = false;
-        document.body.classList.remove('cutscene-mode');
-        cutscenePanel.classList.remove('active');
+        document.body.classList.remove('cutscene-active');
+        dlgBox.classList.remove('active');
         return;
       }
-      const next = cutsceneQueue.shift();
-      cutsceneSpeaker.textContent = next.speaker;
-      cutsceneText.textContent = next.text;
-      cutscenePortrait.innerHTML = getPortraitSVG(next.portrait);
-      audio.slash(420);
+      const l = cutsceneLines.shift();
+      dlgSpeaker.textContent = l.speaker;
+      dlgText.textContent = l.text;
+      dlgPortrait.innerHTML = renderPortraitSVG(l.portrait);
+      sfx.whoosh(440, 0.09);
     }
+    document.getElementById('dlg-next').addEventListener('click', nextCutsceneLine);
 
-    document.getElementById('cutscene-next-btn').addEventListener('click', advanceCutscene);
-
-    // Opening Prologue Cutscene
     setTimeout(() => {
-      startCutscene([
-        { speaker: 'JINZO • THE OATH-BREAKER', portrait: 'jinzo', text: 'The sky over Ezo-koku bleeds twilight ash. The Obsidian Lotus at the Citadel peak is drawing every fallen soul into the void.' },
-        { speaker: 'JINZO • THE OATH-BREAKER', portrait: 'jinzo', text: 'Use the Virtual Thumbstick (or A/D) to advance East, Deflect [防] enemy strikes at the last instant, and unleash Hiken [秘] to cleave through the Shogun’s army.' }
+      playCutscene([
+        { speaker: 'JINZO • WIND-WALKER OF EZO', portrait: 'jinzo', text: 'The winds are rising. With Qinggong [飛 / W], I can leap twice onto pagoda rooftops and bamboo crowns, or strike from the heavens with a Helm-Splitter Plunge.' },
+        { speaker: 'JINZO • WIND-WALKER OF EZO', portrait: 'jinzo', text: 'Switch between Gale, Flowing Water, and Crushing Moon forms [型 / 1-3]—and pause after battle to witness the Chiburi blood-shake and scabbard sheath.' }
       ]);
-    }, 300);
+    }, 280);
 
     /********************************************************************
-     * 6. SAKUGA VFX ENGINE (Slash Smears, Sparks, Petals, Cut-In Banner)
+     * 6. ENVIRONMENTAL PARTICLES, SHOCKWAVES & FLOATING KANJI
      ********************************************************************/
-    const slashSmears = [];
     const sparks = [];
-    const floatingTexts = [];
-    const petals = Array.from({ length: 65 }, () => ({
+    const shockwaves = [];
+    const popups = [];
+    const windLeaves = Array.from({ length: 75 }, () => ({
       x: Math.random() * 2000,
-      y: Math.random() * 800,
-      size: 2.5 + Math.random() * 3.5,
-      vx: -35 - Math.random() * 45,
-      vy: 22 + Math.random() * 30,
-      rot: Math.random() * Math.PI
+      y: Math.random() * 900,
+      vx: -45 - Math.random() * 55,
+      vy: 20 + Math.random() * 35,
+      size: 3 + Math.random() * 4,
+      rot: Math.random() * Math.PI * 2,
+      vRot: (Math.random() - 0.5) * 4
     }));
 
-    let hitStopTimer = 0;
-    let screenShake = 0;
-    let screenFlashColor = null;
-    let screenFlashAlpha = 0;
-    let ultCutInTimer = 0;
+    let hitStop = 0;
+    let camShake = 0;
+    let impactFlashAlpha = 0;
+    let impactFlashColor = '#ffffff';
+    let hikenBannerTimer = 0;
 
-    function spawnSparks(x, y, color, count = 16) {
+    function addSparks(x, y, color, count = 16, speed = 260) {
       for (let i = 0; i < count; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 90 + Math.random() * 280;
+        const a = Math.random() * Math.PI * 2;
+        const s = 60 + Math.random() * speed;
         sparks.push({
           x, y,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd - 60,
-          life: 0.25 + Math.random() * 0.25,
-          maxLife: 0.45,
+          vx: Math.cos(a) * s,
+          vy: Math.sin(a) * s - 50,
+          life: 0.25 + Math.random() * 0.28,
+          maxLife: 0.5,
           color,
-          size: 2 + Math.random() * 3.5
+          r: 2 + Math.random() * 3
         });
       }
     }
 
-    function spawnFloatingText(x, y, text, color = '#fcc419', scale = 1.0) {
-      floatingTexts.push({ x, y, text, color, life: 0.95, scale });
+    function addShockwave(x, y, color = '#fcc419', maxR = 95) {
+      shockwaves.push({ x, y, r: 8, maxR, color, alpha: 1.0 });
+    }
+
+    function addPopup(x, y, text, color = '#fcc419', scale = 1.0) {
+      popups.push({ x, y, text, color, life: 0.95, scale });
+    }
+
+    function pushLeavesNear(worldX, worldY, dirX) {
+      windLeaves.forEach(lf => {
+        const screenX = worldX - cameraX;
+        if (Math.hypot(lf.x - screenX, lf.y - worldY) < 190) {
+          lf.vx = dirX * (320 + Math.random() * 220);
+          lf.vy = -120 + (Math.random() - 0.5) * 180;
+        }
+      });
     }
 
     /********************************************************************
-     * 7. COMBAT ACTIONS: SLASH, PERFECT PARRY, DASH, HIKEN ULTIMATE
+     * 7. MASTERCLASS COMBAT & QINGGONG MOVEMENT ACTIONS
      ********************************************************************/
-    function triggerSlash() {
+    function doQinggongJump() {
       if (cutsceneActive || player.state === 'ULT') return;
-      if (player.state === 'SLASH' && player.timer > 0.08) return;
+      if (player.jumpsLeft <= 0) return;
 
       const st = STANCES[player.stanceIdx];
+      const isDouble = !player.grounded;
+      player.grounded = false;
+      player.jumpsLeft--;
+      player.vh = (isDouble ? 540 : 590) * st.jumpMult;
+      player.state = isDouble ? 'DOUBLE_JUMP' : 'JUMP';
+      player.timer = 0.36;
+      player.sheathed = false;
+      player.idleTime = 0;
+
+      const worldY = BASE_GROUND - player.h;
+      sfx.whoosh(isDouble ? 520 : 340, 0.18);
+      addShockwave(player.x, worldY, isDouble ? '#38d9a9' : '#ced4da', isDouble ? 75 : 50);
+      if (isDouble) {
+        addSparks(player.x, worldY, '#38d9a9', 14, 180);
+        addPopup(player.x, worldY - 75, '飛 GALE STEP', '#38d9a9', 0.95);
+      }
+    }
+
+    function doKatanaSlash(downHeld = false) {
+      if (cutsceneActive || player.state === 'ULT') return;
+      if ((player.state === 'SLASH' || player.state === 'PLUNGE') && player.timer > 0.07) return;
+
+      const st = STANCES[player.stanceIdx];
+      const wasSheathed = player.sheathed;
+      player.sheathed = false;
+      player.idleTime = 0;
+
+      // Mid-air Down + Slash = Helm-Splitter Plunge Attack!
+      if (!player.grounded && (downHeld || player.h > 85)) {
+        player.state = 'PLUNGE';
+        player.timer = 0.45;
+        player.vh = -880;
+        player.vx = player.facing * 260;
+        sfx.whoosh(180, 0.25);
+        return;
+      }
+
       player.state = 'SLASH';
-      player.comboStep = (player.comboStep + 1) % 3;
-      player.timer = 0.22 / st.speed;
-      player.vx = player.facing * 210;
+      player.combo = (player.combo + 1) % 3;
+      player.timer = (0.23 / st.speedMult);
+      player.vx = player.facing * (wasSheathed ? 340 : 210);
+      if (!player.grounded) player.vh = Math.max(player.vh, 140); // Aerial combo hang-time!
 
-      audio.slash(player.comboStep === 2 ? 190 : 310);
+      const worldY = BASE_GROUND - player.h;
+      sfx.whoosh(wasSheathed ? 560 : player.combo === 2 ? 185 : 310, 0.15);
+      pushLeavesNear(player.x, worldY - 45, player.facing);
 
-      // Spawn Sakuga Crescent Blade Arc
-      slashSmears.push({
-        x: player.x + player.facing * 42,
-        y: GROUND_Y + player.y - 44,
-        facing: player.facing,
-        color: st.color,
-        combo: player.comboStep,
-        life: 0.18,
-        maxLife: 0.18
-      });
-
-      // Slice Bamboo Stalks in Zone 2
-      bambooStalks.forEach(b => {
-        if (!b.sliced && Math.abs(b.x - (player.x + player.facing * 55)) < 68) {
+      // Slice Bamboo in Zone 2
+      bambooForest.forEach(b => {
+        if (!b.sliced && Math.abs(b.x - (player.x + player.facing * 55)) < 75 && player.h < b.h) {
           b.sliced = true;
-          b.topY = GROUND_Y - 75;
-          b.topVy = -180 - Math.random() * 90;
-          spawnSparks(b.x, GROUND_Y - 75, '#63e6be', 8);
+          b.topY = worldY - 65;
+          b.topVy = -190 - Math.random() * 80;
+          addSparks(b.x, worldY - 65, '#38d9a9', 9, 160);
         }
       });
 
-      // Check Enemy Hitbox
+      // Evaluate Hits on Enemies (Including Iai Quick-Draw Bonus if blade was sheathed!)
+      const iaiBonus = wasSheathed ? 1.45 : 1.0;
+      if (wasSheathed) {
+        addShockwave(player.x + player.facing * 35, worldY - 42, '#22b8cf', 85);
+        addPopup(player.x, worldY - 105, '抜刀 IAI QUICK-DRAW!', '#22b8cf', 1.15);
+      }
+
       enemies.forEach(e => {
         if (e.dead) return;
         const dx = e.x - player.x;
-        if (Math.sign(dx) === player.facing || Math.abs(dx) < 40) {
-          if (Math.abs(dx) < 135) {
-            if (e.state === 'STAGGER') {
-              // Shinobi Execution Deathblow!
-              e.hp = 0;
-              killEnemy(e, true);
-              return;
-            }
-            const comboMult = player.comboStep === 2 ? 1.35 : 1.0;
-            const dmg = st.dmg * player.atkMult * comboMult;
-            e.hp -= dmg;
-            e.posture = Math.min(e.maxPosture, e.posture + st.postureDmg * player.atkMult);
-            e.x += player.facing * 18;
-            player.ichor = Math.min(player.maxIchor, player.ichor + 10);
-
-            hitStopTimer = 0.045;
-            screenShake = 8;
-            spawnSparks(e.x, GROUND_Y - 48, st.color, 18);
-            spawnFloatingText(e.x, GROUND_Y - 95, `${Math.round(dmg)}`, st.color);
-
-            if (e.hp <= 0) {
-              killEnemy(e, false);
-            } else if (e.posture >= e.maxPosture) {
-              e.state = 'STAGGER';
-              e.timer = 3.0;
-              audio.clang(true);
-              spawnFloatingText(e.x, GROUND_Y - 125, '危 POSTURE BROKEN!', '#ff2a2a', 1.3);
-            }
+        const dh = Math.abs(e.h - player.h);
+        if ((Math.sign(dx) === player.facing || Math.abs(dx) < 42) && Math.abs(dx) < 145 && dh < 110) {
+          if (e.state === 'STAGGER') {
+            e.hp = 0;
+            executeEnemy(e, true);
+            return;
           }
-        }
-      });
-    }
-
-    function triggerParry() {
-      if (cutsceneActive || player.state === 'ULT') return;
-      player.state = 'PARRY';
-      player.timer = 0.32;
-      player.parryWindow = 0.20; // 200ms crisp deflect window
-      audio.slash(480);
-    }
-
-    function triggerDash() {
-      if (cutsceneActive || player.state === 'ULT') return;
-      player.state = 'DASH';
-      player.timer = 0.22;
-      player.invuln = 0.26;
-      player.vx = player.facing * 640;
-      audio.slash(380);
-      spawnSparks(player.x, GROUND_Y - 30, '#22b8cf', 12);
-    }
-
-    function triggerUltimateHiken() {
-      if (cutsceneActive) return;
-      if (player.ichor < 50) {
-        spawnFloatingText(player.x, GROUND_Y - 95, 'Need 50% Obsidian Ichor!', '#da77f2');
-        return;
-      }
-      player.ichor -= 50;
-      player.state = 'ULT';
-      player.timer = 0.65;
-      player.invuln = 0.75;
-      ultCutInTimer = 0.62;
-      hitStopTimer = 0.18;
-      screenShake = 22;
-      screenFlashColor = '#ae3ec9';
-      screenFlashAlpha = 0.75;
-      audio.ultBoom();
-      audio.clang(true);
-
-      // Dash forward 360px and cleave all enemies in range
-      const startX = player.x;
-      player.x = Math.max(40, Math.min(6350, player.x + player.facing * 360));
-
-      enemies.forEach(e => {
-        if (e.dead) return;
-        const minX = Math.min(startX, player.x) - 80;
-        const maxX = Math.max(startX, player.x) + 80;
-        if (e.x >= minX && e.x <= maxX) {
-          const dmg = 115 * player.atkMult;
+          const dmg = st.dmg * player.atkBonus * iaiBonus * (player.combo === 2 ? 1.3 : 1.0);
           e.hp -= dmg;
-          e.posture = Math.min(e.maxPosture, e.posture + 75);
-          spawnSparks(e.x, GROUND_Y - 50, '#da77f2', 32);
-          spawnFloatingText(e.x, GROUND_Y - 115, `秘 HIKEN ${Math.round(dmg)}!`, '#e599f7', 1.35);
-          if (e.hp <= 0) killEnemy(e, true);
+          e.posture = Math.min(e.maxPosture, e.posture + st.postureDmg * player.atkBonus * iaiBonus);
+          e.x += player.facing * 20;
+          player.qi = Math.min(player.maxQi, player.qi + 10);
+
+          hitStop = 0.048;
+          camShake = 9;
+          const eY = BASE_GROUND - e.h;
+          addSparks(e.x, eY - 48, st.color, 18, 280);
+          addPopup(e.x, eY - 95, `${Math.round(dmg)}`, st.color);
+
+          if (e.hp <= 0) executeEnemy(e, false);
           else if (e.posture >= e.maxPosture) {
             e.state = 'STAGGER';
             e.timer = 3.2;
+            sfx.clang(true);
+            addShockwave(e.x, eY - 45, '#ff2a2a', 95);
+            addPopup(e.x, eY - 125, '危 POSTURE BROKEN!', '#ff2a2a', 1.3);
           }
         }
       });
     }
 
-    function cycleStance() {
-      player.stanceIdx = (player.stanceIdx + 1) % STANCES.length;
-      const st = STANCES[player.stanceIdx];
-      document.getElementById('stance-label').textContent = st.name;
-      document.getElementById('stance-label').style.color = st.color;
-      document.getElementById('stance-label').style.borderColor = st.color;
-      spawnFloatingText(player.x, GROUND_Y - 90, st.name, st.color);
-      audio.slash(520);
+    function doDeflectParry() {
+      if (cutsceneActive || player.state === 'ULT') return;
+      player.sheathed = false;
+      player.idleTime = 0;
+      player.state = 'PARRY';
+      player.timer = 0.32;
+      player.parryWindow = 0.21;
+      sfx.whoosh(490, 0.09);
     }
 
-    function useGourd() {
+    function doWindDash() {
+      if (cutsceneActive || player.state === 'ULT') return;
+      player.state = 'DASH';
+      player.timer = 0.22;
+      player.invuln = 0.27;
+      player.vx = player.facing * 680;
+      player.idleTime = 0;
+      const worldY = BASE_GROUND - player.h;
+      sfx.whoosh(420, 0.14);
+      addShockwave(player.x, worldY - 38, '#22b8cf', 65);
+      addSparks(player.x, worldY - 35, '#22b8cf', 14, 210);
+    }
+
+    function doUltimateHiken() {
+      if (cutsceneActive) return;
+      if (player.qi < 50) {
+        addPopup(player.x, BASE_GROUND - player.h - 95, 'Requires 50% Obsidian Qi!', '#e599f7');
+        return;
+      }
+      player.qi -= 50;
+      player.sheathed = false;
+      player.idleTime = 0;
+      player.state = 'ULT';
+      player.timer = 0.65;
+      player.invuln = 0.75;
+      hikenBannerTimer = 0.62;
+      hitStop = 0.16;
+      camShake = 24;
+      impactFlashColor = '#be4bdb';
+      impactFlashAlpha = 0.72;
+      sfx.clang(true);
+
+      const startX = player.x;
+      player.x = Math.max(50, Math.min(10050, player.x + player.facing * 390));
+      const worldY = BASE_GROUND - player.h;
+      addShockwave(player.x, worldY - 45, '#e599f7', 160);
+
+      enemies.forEach(e => {
+        if (e.dead) return;
+        const minX = Math.min(startX, player.x) - 90;
+        const maxX = Math.max(startX, player.x) + 90;
+        if (e.x >= minX && e.x <= maxX) {
+          const dmg = 125 * player.atkBonus;
+          e.hp -= dmg;
+          e.posture = Math.min(e.maxPosture, e.posture + 85);
+          const eY = BASE_GROUND - e.h;
+          addSparks(e.x, eY - 50, '#e599f7', 34, 340);
+          addPopup(e.x, eY - 120, `秘 HIKEN ${Math.round(dmg)}!`, '#e599f7', 1.35);
+          if (e.hp <= 0) executeEnemy(e, true);
+          else if (e.posture >= e.maxPosture) {
+            e.state = 'STAGGER';
+            e.timer = 3.4;
+          }
+        }
+      });
+    }
+
+    function cycleStanceForm() {
+      player.stanceIdx = (player.stanceIdx + 1) % STANCES.length;
+      const st = STANCES[player.stanceIdx];
+      const tag = document.getElementById('hud-stance');
+      tag.textContent = st.name.split(' ')[0] + ' Form';
+      tag.style.color = st.color;
+      tag.style.borderColor = st.color;
+      const worldY = BASE_GROUND - player.h;
+      addShockwave(player.x, worldY - 40, st.color, 70);
+      addPopup(player.x, worldY - 95, st.name, st.color, 1.1);
+      sfx.sheathClick();
+    }
+
+    function drinkElixir() {
       if (player.gourds <= 0 || player.hp >= player.maxHp) return;
       player.gourds--;
       player.hp = Math.min(player.maxHp, player.hp + 65);
-      player.posture = Math.max(0, player.posture - 50);
-      audio.clang(true);
-      spawnSparks(player.x, GROUND_Y - 45, '#51cf66', 20);
-      spawnFloatingText(player.x, GROUND_Y - 95, '+65 VITALITY', '#51cf66');
+      player.posture = Math.max(0, player.posture - 55);
+      const worldY = BASE_GROUND - player.h;
+      sfx.clang(true);
+      addSparks(player.x, worldY - 45, '#51cf66', 22, 200);
+      addPopup(player.x, worldY - 95, '+65 VITALITY', '#51cf66', 1.1);
     }
 
-    function killEnemy(e, isExec) {
+    function executeEnemy(e, isExec) {
       e.dead = true;
       e.state = 'DEAD';
       player.slag += e.slag;
-      player.ichor = Math.min(player.maxIchor, player.ichor + 35);
-      hitStopTimer = 0.11;
-      screenShake = 18;
-      screenFlashColor = '#e03131';
-      screenFlashAlpha = 0.55;
-      audio.clang(true);
-      spawnSparks(e.x, GROUND_Y - 45, '#ff2a2a', 36);
-      spawnFloatingText(e.x, GROUND_Y - 110, isExec ? '斬 SHINOBI EXECUTION!' : `SLAIN (+${e.slag} Slag)`, '#fcc419', 1.3);
+      player.qi = Math.min(player.maxQi, player.qi + 35);
+      hitStop = 0.11;
+      camShake = 18;
+      impactFlashColor = '#e03131';
+      impactFlashAlpha = 0.52;
+      const eY = BASE_GROUND - e.h;
+      sfx.clang(true);
+      addShockwave(e.x, eY - 45, '#ff2a2a', 120);
+      addSparks(e.x, eY - 45, '#ff2a2a', 38, 320);
+      addPopup(e.x, eY - 115, isExec ? '斬 SHINOBI EXECUTION!' : `SLAIN (+${e.slag} Slag)`, '#fcc419', 1.3);
     }
 
     /********************************************************************
-     * 8. MOBILE TOUCH JOYSTICK & BUTTON BINDINGS + KEYBOARD
+     * 8. MOBILE TOUCH & KEYBOARD CONTROLS
      ********************************************************************/
     const keys = {};
-    let joyVectorX = 0;
+    let stickX = 0;
+    let stickY = 0;
 
     window.addEventListener('keydown', e => {
       keys[e.code] = true;
       if (cutsceneActive) {
-        if (e.code === 'Space' || e.code === 'Enter' || e.code === 'KeyE') advanceCutscene();
+        if (e.code === 'Space' || e.code === 'Enter' || e.code === 'KeyE') nextCutsceneLine();
         return;
       }
-      if (e.code === 'KeyJ') triggerSlash();
-      if (e.code === 'KeyK' || e.code === 'Space') triggerParry();
-      if (e.code === 'KeyL' || e.code === 'ShiftLeft') triggerDash();
-      if (e.code === 'KeyU' || e.code === 'KeyQ') triggerUltimateHiken();
-      if (e.code === 'Digit1') { player.stanceIdx = 2; cycleStance(); }
-      if (e.code === 'Digit2') { player.stanceIdx = 0; cycleStance(); }
-      if (e.code === 'Digit3') { player.stanceIdx = 1; cycleStance(); }
-      if (e.code === 'KeyR') useGourd();
-      if (e.code === 'KeyE') triggerNearbyInteraction();
+      if (e.code === 'KeyW' || e.code === 'ArrowUp') doQinggongJump();
+      if (e.code === 'KeyJ') doKatanaSlash(keys['KeyS'] || keys['ArrowDown']);
+      if (e.code === 'KeyK' || e.code === 'Space') doDeflectParry();
+      if (e.code === 'KeyL' || e.code === 'ShiftLeft') doWindDash();
+      if (e.code === 'KeyU' || e.code === 'KeyQ') doUltimateHiken();
+      if (e.code === 'Digit1') { player.stanceIdx = 2; cycleStanceForm(); }
+      if (e.code === 'Digit2') { player.stanceIdx = 0; cycleStanceForm(); }
+      if (e.code === 'Digit3') { player.stanceIdx = 1; cycleStanceForm(); }
+      if (e.code === 'KeyR') drinkElixir();
+      if (e.code === 'KeyE') invokeContextAction();
     });
-
     window.addEventListener('keyup', e => { keys[e.code] = false; });
 
-    // Virtual Joystick Multi-Touch Handler
-    const joyZone = document.getElementById('joystick-zone');
-    const joyKnob = document.getElementById('joystick-knob');
-    let joyTouchId = null;
+    // Mobile Virtual Thumbstick (with Up-Flick Jump & Down-Hold Plunge)
+    const stickBase = document.getElementById('stick-base');
+    const stickNub = document.getElementById('stick-nub');
+    let stickTouchId = null;
+    let stickFlickedUp = false;
 
-    function updateJoystick(clientX, clientY) {
-      const rect = joyZone.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const maxR = rect.width * 0.38;
-      let dx = clientX - cx;
-      let dy = clientY - cy;
-      const dist = Math.hypot(dx, dy);
-      if (dist > maxR) {
-        dx = (dx / dist) * maxR;
-        dy = (dy / dist) * maxR;
+    function updateStick(cx, cy) {
+      const r = stickBase.getBoundingClientRect();
+      const ox = r.left + r.width / 2;
+      const oy = r.top + r.height / 2;
+      const maxR = r.width * 0.38;
+      let dx = cx - ox;
+      let dy = cy - oy;
+      const d = Math.hypot(dx, dy);
+      if (d > maxR) { dx = (dx / d) * maxR; dy = (dy / d) * maxR; }
+      stickNub.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+      stickX = Math.abs(dx) > 8 ? dx / maxR : 0;
+      stickY = Math.abs(dy) > 8 ? dy / maxR : 0;
+
+      if (stickY < -0.68 && !stickFlickedUp) {
+        stickFlickedUp = true;
+        doQinggongJump();
+      } else if (stickY > -0.35) {
+        stickFlickedUp = false;
       }
-      joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-      joyVectorX = Math.abs(dx) > 8 ? dx / maxR : 0;
     }
 
-    function resetJoystick() {
-      joyTouchId = null;
-      joyVectorX = 0;
-      joyKnob.style.transform = 'translate(-50%, -50%)';
+    function resetStick() {
+      stickTouchId = null;
+      stickX = 0;
+      stickY = 0;
+      stickFlickedUp = false;
+      stickNub.style.transform = 'translate(-50%, -50%)';
     }
 
-    joyZone.addEventListener('pointerdown', e => {
-      audio.init();
-      joyTouchId = e.pointerId;
-      joyZone.setPointerCapture(e.pointerId);
-      updateJoystick(e.clientX, e.clientY);
+    stickBase.addEventListener('pointerdown', e => {
+      sfx.init();
+      stickTouchId = e.pointerId;
+      stickBase.setPointerCapture(e.pointerId);
+      updateStick(e.clientX, e.clientY);
     });
-    joyZone.addEventListener('pointermove', e => {
-      if (e.pointerId === joyTouchId) updateJoystick(e.clientX, e.clientY);
+    stickBase.addEventListener('pointermove', e => {
+      if (e.pointerId === stickTouchId) updateStick(e.clientX, e.clientY);
     });
-    joyZone.addEventListener('pointerup', e => {
-      if (e.pointerId === joyTouchId) resetJoystick();
+    stickBase.addEventListener('pointerup', e => {
+      if (e.pointerId === stickTouchId) resetStick();
     });
-    joyZone.addEventListener('pointercancel', resetJoystick);
+    stickBase.addEventListener('pointercancel', resetStick);
 
-    // Bind Mobile Action Buttons
-    function bindActionBtn(id, fn) {
+    function bindBtn(id, fn) {
       const el = document.getElementById(id);
       el.addEventListener('pointerdown', e => {
         e.preventDefault();
-        audio.init();
-        el.classList.add('pressed');
+        sfx.init();
+        el.classList.add('active');
         fn();
       });
-      el.addEventListener('pointerup', () => el.classList.remove('pressed'));
-      el.addEventListener('pointerleave', () => el.classList.remove('pressed'));
+      el.addEventListener('pointerup', () => el.classList.remove('active'));
+      el.addEventListener('pointerleave', () => el.classList.remove('active'));
     }
 
-    bindActionBtn('btn-slash', triggerSlash);
-    bindActionBtn('btn-parry', triggerParry);
-    bindActionBtn('btn-dash', triggerDash);
-    bindActionBtn('btn-ult', triggerUltimateHiken);
-    bindActionBtn('btn-stance', cycleStance);
-    bindActionBtn('btn-heal', useGourd);
+    bindBtn('b-slash', () => doKatanaSlash(stickY > 0.55));
+    bindBtn('b-parry', doDeflectParry);
+    bindBtn('b-jump', doQinggongJump);
+    bindBtn('b-dash', doWindDash);
+    bindBtn('b-ult', doUltimateHiken);
+    bindBtn('b-stance', cycleStanceForm);
+    bindBtn('b-heal', drinkElixir);
 
-    // Context Interaction Button (Shrines, Kiri NPC, Lotus Core)
-    const interactBtn = document.getElementById('btn-interact');
-    let currentInteract = null;
+    // Context Shrine / Kiri / Lotus Interaction
+    const ctxBtn = document.getElementById('context-action');
+    let nearbyInteract = null;
 
-    function triggerNearbyInteraction() {
-      if (!currentInteract) return;
-      if (currentInteract.type === 'shrine') {
+    function invokeContextAction() {
+      if (!nearbyInteract) return;
+      const worldY = BASE_GROUND - player.h;
+      if (nearbyInteract.type === 'shrine') {
         player.hp = player.maxHp;
         player.posture = 0;
         player.gourds = 3;
-        player.ichor = 100;
-        player.checkpointX = currentInteract.data.x;
-        audio.clang(true);
-        spawnSparks(player.x, GROUND_Y - 50, '#fcc419', 26);
-        spawnFloatingText(player.x, GROUND_Y - 105, 'SHRINE RESTORED!', '#fcc419', 1.2);
-      } else if (currentInteract.type === 'kiri') {
+        player.qi = 100;
+        player.checkpointX = nearbyInteract.obj.x;
+        sfx.clang(true);
+        addShockwave(player.x, worldY - 40, '#fcc419', 110);
+        addPopup(player.x, worldY - 105, 'SHRINE RESTORED', '#fcc419', 1.2);
+      } else if (nearbyInteract.type === 'kiri') {
         if (player.slag >= 40) {
           player.slag -= 40;
-          player.atkMult += 0.25;
-          audio.clang(true);
-          spawnFloatingText(player.x, GROUND_Y - 110, 'KATANA FORGED (+25% ATK)!', '#fcc419', 1.25);
+          player.atkBonus += 0.25;
+          sfx.clang(true);
+          addShockwave(player.x, worldY - 40, '#38d9a9', 110);
+          addPopup(player.x, worldY - 110, 'BLADE TEMPERED (+25% ATK)!', '#38d9a9', 1.25);
         } else {
-          startCutscene([
-            { speaker: 'KIRI • BLIND BIWA MYSTIC', portrait: 'jinzo', text: `Bring me 40 Obsidian Slag from fallen husks, Jinzo, and my biwa resonance shall sharpen your cursed steel. (Current Slag: ${player.slag})` }
+          playCutscene([
+            { speaker: 'KIRI • BLIND BIWA MYSTIC', portrait: 'jinzo', text: `You have climbed to my Treetop Pavilion, Jinzo! Bring me 40 Obsidian Slag and my biwa chord will temper your katana. (Current Slag: ${player.slag})` }
           ]);
         }
-      } else if (currentInteract.type === 'lotus') {
+      } else if (nearbyInteract.type === 'lotus') {
         const shogun = enemies[enemies.length - 1];
         if (shogun && !shogun.dead) {
-          spawnFloatingText(player.x, GROUND_Y - 100, 'Vanquish The Hollow Shogun First!', '#ff2a2a');
+          addPopup(player.x, worldY - 105, 'Defeat The Hollow Shogun First!', '#ff2a2a');
           return;
         }
-        document.getElementById('ending-modal').classList.add('visible');
+        document.getElementById('ending-overlay').classList.add('visible');
       }
     }
-    interactBtn.addEventListener('click', triggerNearbyInteraction);
+    ctxBtn.addEventListener('click', invokeContextAction);
 
-    // Ending Choices
-    document.getElementById('choose-dawn').addEventListener('click', () => {
-      document.getElementById('ending-title').textContent = 'Ending I: First Dawn Over Ezo-koku';
-      document.getElementById('ending-desc').textContent = 'Jinzo cleaves the Obsidian Lotus in two. Warm golden sunlight breaks through the eternal ash clouds, freeing ten thousand warrior spirits as Jinzo sheaths his blade in peace.';
-      document.getElementById('ending-choices').innerHTML = `<button class="choice-btn" onclick="location.reload()">Play Again (New Journey)</button>`;
+    document.getElementById('btn-end-dawn').addEventListener('click', () => {
+      document.getElementById('end-title').textContent = 'Ending I: Winds of the First Dawn';
+      document.getElementById('end-desc').textContent = 'Jinzo cleaves the Obsidian Lotus in a single Gale stroke. Golden morning light floods the floating peaks of Ezo-koku as ten thousand bound spirits ascend into the warm breeze.';
+      document.getElementById('end-btns').innerHTML = `<button class="end-btn" onclick="location.reload()">Embark on New Journey</button>`;
     });
 
-    document.getElementById('choose-eclipse').addEventListener('click', () => {
-      document.getElementById('ending-title').textContent = 'Ending II: Sovereign of the Crimson Eclipse';
-      document.getElementById('ending-desc').textContent = 'Jinzo absorbs the Obsidian Lotus into his cursed arm. The blood moon locks forever above the Citadel, crowning the Immortal Shogun of Twilight.';
-      document.getElementById('ending-choices').innerHTML = `<button class="choice-btn" onclick="location.reload()">Reign Again (New Journey)</button>`;
+    document.getElementById('btn-end-twilight').addEventListener('click', () => {
+      document.getElementById('end-title').textContent = 'Ending II: Immortal Sovereign of Twilight';
+      document.getElementById('end-desc').textContent = 'Jinzo binds the Obsidian Lotus into his blade. The crimson eclipse crowns the heavens forever, and the Wind-Walker reigns eternal over the silent realm.';
+      document.getElementById('end-btns').innerHTML = `<button class="end-btn" onclick="location.reload()">Reign Again (New Journey)</button>`;
     });
 
     /********************************************************************
-     * 9. MAIN UPDATE LOOP (Physics, AI, Cutscene Triggers, Scarf Sim)
+     * 9. PHYSICS, PLATFORM COLLISION, CHIBURI SHEATHING & AI UPDATE
      ********************************************************************/
     let cameraX = 0;
 
-    function update(dt) {
+    function updateGame(dt) {
       if (cutsceneActive) return;
 
-      // Player Timers
+      const st = STANCES[player.stanceIdx];
       if (player.parryWindow > 0) player.parryWindow = Math.max(0, player.parryWindow - dt);
       if (player.invuln > 0) player.invuln = Math.max(0, player.invuln - dt);
+      if (player.sheathSparkTimer > 0) player.sheathSparkTimer = Math.max(0, player.sheathSparkTimer - dt);
 
       if (player.timer > 0) {
         player.timer -= dt;
-        if (player.timer <= 0) player.state = 'IDLE';
+        if (player.timer <= 0 && player.state !== 'PLUNGE') {
+          player.state = player.grounded ? 'IDLE' : 'JUMP';
+        }
       }
 
-      // Horizontal Input (Keyboard + Mobile Thumbstick)
-      let moveInput = joyVectorX;
-      if (keys['KeyA'] || keys['ArrowLeft']) moveInput = -1;
-      if (keys['KeyD'] || keys['ArrowRight']) moveInput = 1;
+      // Horizontal Input
+      let moveIn = stickX;
+      if (keys['KeyA'] || keys['ArrowLeft']) moveIn = -1;
+      if (keys['KeyD'] || keys['ArrowRight']) moveIn = 1;
 
-      if (player.state === 'IDLE' || player.state === 'RUN') {
-        if (Math.abs(moveInput) > 0.05) {
-          player.state = 'RUN';
-          player.facing = Math.sign(moveInput);
-          const spd = 290 * STANCES[player.stanceIdx].speed;
-          player.vx = moveInput * spd;
+      if (player.state === 'IDLE' || player.state === 'RUN' || player.state === 'JUMP' || player.state === 'DOUBLE_JUMP') {
+        if (Math.abs(moveIn) > 0.06) {
+          if (player.grounded) player.state = 'RUN';
+          player.facing = Math.sign(moveIn);
+          player.vx = moveIn * 315 * st.speedMult;
+          player.idleTime = 0;
         } else {
-          player.state = 'IDLE';
-          player.vx *= 0.75;
+          if (player.grounded) player.state = 'IDLE';
+          player.vx *= 0.76;
+          if (player.grounded) {
+            player.idleTime += dt;
+            // Automatic Chiburi Blood-Shake & Scabbard Sheath after 1.6s of calm!
+            if (player.idleTime > 1.6 && !player.sheathed) {
+              player.sheathed = true;
+              player.sheathSparkTimer = 0.35;
+              sfx.sheathClick();
+              addPopup(player.x, BASE_GROUND - player.h - 92, '納刀 NOTO SHEATH', '#ced4da', 0.88);
+            }
+          }
         }
-        player.posture = Math.max(0, player.posture - dt * 12);
+        player.posture = Math.max(0, player.posture - dt * 13);
       } else {
         player.vx *= 0.88;
       }
 
-      player.x = Math.max(40, Math.min(6360, player.x + player.vx * dt));
+      // Apply Horizontal & Vertical Kinematics (Gravity + Platform Landing)
+      const prevH = player.h;
+      player.x = Math.max(40, Math.min(10080, player.x + player.vx * dt));
+      player.vh -= 1350 * dt; // Crisp Wuxia gravity
+      player.h += player.vh * dt;
 
-      // Update Flowing Anime Scarf Physics
-      player.scarfPoints[0].x = player.x - player.facing * 8;
-      player.scarfPoints[0].y = GROUND_Y - 58;
-      for (let i = 1; i < player.scarfPoints.length; i++) {
-        const prev = player.scarfPoints[i - 1];
-        const pt = player.scarfPoints[i];
-        const targetX = prev.x - player.facing * 11 - player.vx * 0.02;
-        const targetY = prev.y + Math.sin(performance.now() * 0.012 + i) * 2.5 + 1.5;
-        pt.x += (targetX - pt.x) * 0.35;
-        pt.y += (targetY - pt.y) * 0.35;
+      // Check Walkable Rooftops, Ship Decks & Bamboo Canopy Platforms
+      let landedPlatformH = 0;
+      const dropThrough = keys['KeyS'] || keys['ArrowDown'] || stickY > 0.65;
+      if (!dropThrough && player.vh <= 0) {
+        for (const p of platforms) {
+          if (player.x >= p.x - p.w / 2 && player.x <= p.x + p.w / 2) {
+            if (prevH >= p.hOffset - 12 && player.h <= p.hOffset) {
+              landedPlatformH = Math.max(landedPlatformH, p.hOffset);
+            }
+          }
+        }
       }
 
-      // Check Zone Banner Updates
+      if (player.h <= landedPlatformH) {
+        const wasPlunging = player.state === 'PLUNGE';
+        player.h = landedPlatformH;
+        player.vh = 0;
+        player.grounded = true;
+        player.jumpsLeft = 2;
+
+        if (wasPlunging) {
+          // Execute Helm-Splitter Plunge Shockwave on Landing!
+          player.state = 'IDLE';
+          const worldY = BASE_GROUND - player.h;
+          sfx.clang(true);
+          camShake = 18;
+          addShockwave(player.x, worldY, st.color, 135);
+          addSparks(player.x, worldY, st.color, 26, 310);
+          addPopup(player.x, worldY - 105, '落下 HELM-SPLITTER IMPACT!', st.color, 1.2);
+
+          enemies.forEach(e => {
+            if (!e.dead && Math.abs(e.x - player.x) < 175 && Math.abs(e.h - player.h) < 90) {
+              e.hp -= 58 * player.atkBonus;
+              e.posture = Math.min(e.maxPosture, e.posture + 65);
+              if (e.hp <= 0) executeEnemy(e, true);
+              else if (e.posture >= e.maxPosture) {
+                e.state = 'STAGGER';
+                e.timer = 3.2;
+              }
+            }
+          });
+        } else if (player.state === 'JUMP' || player.state === 'DOUBLE_JUMP') {
+          player.state = Math.abs(player.vx) > 20 ? 'RUN' : 'IDLE';
+        }
+      } else {
+        player.grounded = false;
+      }
+
+      // Update Jinzo's 3 Verlet Cloth/Hair Chains
+      const worldY = BASE_GROUND - player.h;
+      const ambientWind = -65 + Math.sin(performance.now() * 0.002) * 35 - player.vx * 0.45;
+      updateVerletChain(player.hairChain, player.x - player.facing * 6, worldY - 76, ambientWind * 1.2, 180, dt);
+      updateVerletChain(player.scarfChain, player.x - player.facing * 8, worldY - 58, ambientWind * 1.5, 140, dt);
+      updateVerletChain(player.coatChain, player.x - player.facing * 10, worldY - 36, ambientWind * 1.1, 320, dt);
+
+      // Update Zone HUD & Nearby Interactables
       for (const z of ZONES) {
-        if (player.x >= z.xStart && player.x < z.xEnd) {
-          document.getElementById('zone-act').textContent = z.act;
-          document.getElementById('zone-name').textContent = z.name;
+        if (player.x >= z.x0 && player.x < z.x1) {
+          document.getElementById('hud-zone-act').textContent = z.act;
+          document.getElementById('hud-zone-name').textContent = z.name;
           break;
         }
       }
 
-      // Check Nearby Shrines / Kiri / Lotus
-      currentInteract = null;
+      nearbyInteract = null;
       for (const s of shrines) {
-        if (Math.abs(player.x - s.x) < 75) {
-          currentInteract = { type: s.isKiri ? 'kiri' : 'shrine', data: s };
-          interactBtn.textContent = s.isKiri ? `Temper Blade with Kiri (40 Slag) [E]` : `Rest at ${s.name} [E]`;
+        const sh = s.hOffset || 0;
+        if (Math.abs(player.x - s.x) < 80 && Math.abs(player.h - sh) < 75) {
+          nearbyInteract = { type: s.isKiri ? 'kiri' : 'shrine', obj: s };
+          ctxBtn.textContent = s.isKiri ? `Temper Blade with Kiri (40 Slag) [E]` : `Rest at ${s.name} [E]`;
           break;
         }
       }
-      if (Math.abs(player.x - lotusCore.x) < 95) {
-        currentInteract = { type: 'lotus', data: lotusCore };
-        interactBtn.textContent = `Confront the Obsidian Lotus [E]`;
+      if (Math.abs(player.x - lotusRelic.x) < 105) {
+        nearbyInteract = { type: 'lotus', obj: lotusRelic };
+        ctxBtn.textContent = `Confront the Obsidian Lotus [E]`;
       }
-      interactBtn.classList.toggle('visible', !!currentInteract);
+      ctxBtn.classList.toggle('visible', !!nearbyInteract);
 
-      // Update Enemies & Boss Cutscene Triggers
+      // Enemy AI & Boss Cutscenes
       let activeBoss = null;
       enemies.forEach(e => {
         if (e.dead) return;
+        const eY = BASE_GROUND - e.h;
+        updateVerletChain(e.scarf, e.x - e.facing * 8, eY - 58, -40, 200, dt);
+
         const dx = player.x - e.x;
         const dist = Math.abs(dx);
+        if (e.isBoss && dist < 480) activeBoss = e;
 
-        if (e.isBoss && dist < 440) activeBoss = e;
-
-        // Trigger Boss Anime Cutscene on First Encounter
-        if (e.isBoss && !e.introSeen && dist < 320) {
+        if (e.isBoss && !e.introSeen && dist < 340) {
           e.introSeen = true;
-          startCutscene(e.dialogue);
+          playCutscene(e.dialogue);
           return;
         }
 
-        if (e.slashArcAlpha > 0) e.slashArcAlpha = Math.max(0, e.slashArcAlpha - dt * 4);
+        if (e.slashAlpha > 0) e.slashAlpha = Math.max(0, e.slashAlpha - dt * 4);
 
         if (e.state === 'STAGGER') {
           e.timer -= dt;
@@ -1330,20 +1462,20 @@
           return;
         }
 
-        if (dist < 480) {
+        if (dist < 520) {
           e.facing = Math.sign(dx) || -1;
           if (e.state === 'IDLE' || e.state === 'CHASE') {
             e.posture = Math.max(0, e.posture - dt * 4);
-            if (dist > 82) {
+            if (dist > 88) {
               e.state = 'CHASE';
-              e.x += e.facing * e.speed * dt;
+              if (e.h === 0) e.x += e.facing * e.speed * dt;
             } else {
               e.cooldown -= dt;
               if (e.cooldown <= 0) {
                 const perilous = e.isBoss && Math.random() < 0.35;
                 e.state = perilous ? 'PERILOUS' : 'WINDUP';
                 e.timer = perilous ? 0.62 : 0.44;
-                if (perilous) spawnFloatingText(e.x, GROUND_Y - 125, '危 PERILOUS!', '#ff2a2a', 1.4);
+                if (perilous) addPopup(e.x, eY - 125, '危 PERILOUS!', '#ff2a2a', 1.35);
               }
             }
           } else if (e.state === 'WINDUP' || e.state === 'PERILOUS') {
@@ -1352,52 +1484,49 @@
               const isPerilous = e.state === 'PERILOUS';
               e.state = 'SLASH';
               e.timer = 0.24;
-              e.slashArcAlpha = 1.0;
-              audio.slash(160);
+              e.slashAlpha = 1.0;
+              sfx.whoosh(165, 0.16);
 
-              // Check Hit on Jinzo
-              if (Math.abs(player.x - e.x) < 105 && player.invuln <= 0) {
+              if (Math.abs(player.x - e.x) < 110 && Math.abs(player.h - e.h) < 85 && player.invuln <= 0) {
                 if (player.parryWindow > 0) {
                   // PERFECT DEFLECT!
-                  audio.clang(true);
-                  hitStopTimer = 0.08;
-                  screenShake = 15;
-                  screenFlashColor = '#fcc419';
-                  screenFlashAlpha = 0.45;
-                  e.posture = Math.min(e.maxPosture, e.posture + (isPerilous ? 60 : 38));
-                  player.ichor = Math.min(player.maxIchor, player.ichor + 22);
-                  spawnSparks((player.x + e.x) / 2, GROUND_Y - 52, '#fcc419', 28);
-                  spawnFloatingText(player.x, GROUND_Y - 105, 'PERFECT DEFLECT!', '#fcc419', 1.25);
+                  sfx.clang(true);
+                  hitStop = 0.085;
+                  camShake = 16;
+                  impactFlashColor = '#fcc419';
+                  impactFlashAlpha = 0.48;
+                  e.posture = Math.min(e.maxPosture, e.posture + (isPerilous ? 65 : 40));
+                  player.qi = Math.min(player.maxQi, player.qi + 22);
+                  addShockwave((player.x + e.x) / 2, worldY - 48, '#fcc419', 105);
+                  addSparks((player.x + e.x) / 2, worldY - 48, '#fcc419', 28, 320);
+                  addPopup(player.x, worldY - 105, 'PERFECT DEFLECT!', '#fcc419', 1.25);
                   if (e.posture >= e.maxPosture) {
                     e.state = 'STAGGER';
-                    e.timer = 3.0;
-                    spawnFloatingText(e.x, GROUND_Y - 130, '危 POSTURE BROKEN!', '#ff2a2a', 1.35);
+                    e.timer = 3.2;
+                    addPopup(e.x, eY - 130, '危 POSTURE BROKEN!', '#ff2a2a', 1.35);
                   }
                 } else if (player.state === 'PARRY' && !isPerilous) {
-                  // Guard Block
-                  audio.clang(false);
+                  sfx.clang(false);
                   player.posture = Math.min(player.maxPosture, player.posture + 24);
                   player.hp -= e.dmg * 0.2;
-                  spawnSparks(player.x, GROUND_Y - 48, '#ced4da', 10);
+                  addSparks(player.x, worldY - 45, '#ced4da', 10, 160);
                 } else {
-                  // Direct Hit
-                  audio.ultBoom();
-                  screenShake = 16;
-                  screenFlashColor = '#e03131';
-                  screenFlashAlpha = 0.5;
+                  camShake = 16;
+                  impactFlashColor = '#e03131';
+                  impactFlashAlpha = 0.5;
                   player.hp -= isPerilous ? e.dmg * 1.35 : e.dmg;
-                  player.posture = Math.min(player.maxPosture, player.posture + 25);
-                  spawnSparks(player.x, GROUND_Y - 45, '#ff2a2a', 22);
-                  spawnFloatingText(player.x, GROUND_Y - 95, `-${Math.round(e.dmg)}`, '#ff2a2a', 1.15);
+                  player.posture = Math.min(player.maxPosture, player.posture + 24);
+                  addSparks(player.x, worldY - 45, '#ff2a2a', 22, 260);
+                  addPopup(player.x, worldY - 95, `-${Math.round(e.dmg)}`, '#ff2a2a', 1.15);
 
                   if (player.hp <= 0) {
-                    // Resurrect at Checkpoint Shrine
                     player.hp = player.maxHp;
                     player.posture = 0;
                     player.gourds = 3;
                     player.x = player.checkpointX;
-                    initEnemies();
-                    spawnFloatingText(player.x, GROUND_Y - 110, 'RESURRECTED AT SHRINE', '#fcc419', 1.3);
+                    player.h = 0;
+                    spawnWorldEnemies();
+                    addPopup(player.x, BASE_GROUND - 110, 'RESURRECTED AT SHRINE', '#fcc419', 1.3);
                   }
                 }
               }
@@ -1412,413 +1541,635 @@
         }
       });
 
-      // Update HUD Bars
-      document.getElementById('hp-val').textContent = `${Math.max(0, Math.round(player.hp))}/${player.maxHp}`;
-      document.getElementById('hp-bar').style.transform = `scaleX(${Math.max(0, player.hp / player.maxHp)})`;
-      document.getElementById('posture-val').textContent = `${Math.round(player.posture)}%`;
-      document.getElementById('posture-bar').style.transform = `scaleX(${player.posture / 100})`;
-      document.getElementById('ichor-val').textContent = `${Math.round(player.ichor)}%`;
-      document.getElementById('ichor-bar').style.transform = `scaleX(${player.ichor / 100})`;
-      document.getElementById('gourd-val').textContent = player.gourds;
-      document.getElementById('slag-val').textContent = player.slag;
+      // Sync HUD
+      document.getElementById('hud-hp-txt').textContent = `${Math.max(0, Math.round(player.hp))}/${player.maxHp}`;
+      document.getElementById('hud-hp-bar').style.transform = `scaleX(${Math.max(0, player.hp / player.maxHp)})`;
+      document.getElementById('hud-post-txt').textContent = `${Math.round(player.posture)}%`;
+      document.getElementById('hud-post-bar').style.transform = `scaleX(${player.posture / 100})`;
+      document.getElementById('hud-qi-txt').textContent = `${Math.round(player.qi)}%`;
+      document.getElementById('hud-qi-bar').style.transform = `scaleX(${player.qi / 100})`;
+      document.getElementById('hud-gourd').textContent = player.gourds;
+      document.getElementById('hud-slag').textContent = player.slag;
+      document.getElementById('hud-sheath').textContent = player.sheathed ? 'Sheathed (Iai Ready)' : 'Drawn';
+      document.getElementById('hud-sheath').style.color = player.sheathed ? '#22b8cf' : '#38d9a9';
 
-      const bossBanner = document.getElementById('boss-banner');
+      const bossHud = document.getElementById('boss-hud');
       if (activeBoss) {
-        bossBanner.classList.add('active');
-        document.getElementById('boss-name').textContent =
+        bossHud.classList.add('active');
+        document.getElementById('boss-name-txt').textContent =
           activeBoss.state === 'STAGGER'
             ? `${activeBoss.name} — [STAGGERED: STRIKE TO EXECUTE!]`
             : activeBoss.name;
-        document.getElementById('boss-hp').style.transform = `scaleX(${Math.max(0, activeBoss.hp / activeBoss.maxHp)})`;
-        document.getElementById('boss-posture').style.transform = `scaleX(${Math.min(1, activeBoss.posture / activeBoss.maxPosture)})`;
+        document.getElementById('boss-hp-bar').style.transform = `scaleX(${Math.max(0, activeBoss.hp / activeBoss.maxHp)})`;
+        document.getElementById('boss-post-bar').style.transform = `scaleX(${Math.min(1, activeBoss.posture / activeBoss.maxPosture)})`;
       } else {
-        bossBanner.classList.remove('active');
+        bossHud.classList.remove('active');
       }
 
-      // Smooth Camera Tracking
+      // Smooth Camera Follow
       const targetCamX = player.x - W * 0.36;
       cameraX += (targetCamX - cameraX) * 0.12;
     }
 
     /********************************************************************
-     * 10. SAKUGA 2D RENDERER (Parallax, Reflections, Samurai Rigs, VFX)
+     * 10. MASTERCLASS WUXIA CHARACTER & WORLD RENDERER
      ********************************************************************/
-    function drawSamurai2D(x, y, facing, scale, color, state, isPlayer = false, scarf = null) {
+    function drawVerletRibbon(chain, color, widthStart, widthEnd) {
+      const pts = chain.pts;
+      if (pts.length < 2) return;
+      ctx.save();
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      for (let i = 0; i < pts.length - 1; i++) {
+        const t = i / (pts.length - 1);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = widthStart * (1 - t) + widthEnd * t;
+        ctx.beginPath();
+        ctx.moveTo(pts[i].x, pts[i].y);
+        ctx.lineTo(pts[i + 1].x, pts[i + 1].y);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function drawWuxiaWarrior({
+      x, y, facing, scale = 1.0, accentColor, state, stanceId = 'GALE',
+      sheathed = false, sheathGlint = 0, combo = 0, isPlayer = false,
+      hairChain = null, scarfChain = null, coatChain = null
+    }) {
+      const t = performance.now() * 0.006;
+      const breath = Math.sin(t) * 2.2;
+
+      // 1. Draw Back Verlet Coat Tails & Ponytail
+      if (coatChain) drawVerletRibbon(coatChain, isPlayer ? '#161b29' : '#24131b', 14 * scale, 4 * scale);
+      if (hairChain) drawVerletRibbon(hairChain, '#0e1017', 6 * scale, 1.5 * scale);
+
       ctx.save();
       ctx.translate(x, y);
       ctx.scale(facing * scale, scale);
 
-      // Haori / Hakama Silhouette
-      ctx.fillStyle = isPlayer ? '#141824' : '#1b1622';
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
+      // Dynamic Spine Lean based on Stance & State
+      let lean = 0;
+      if (state === 'RUN' || state === 'CHASE') lean = 0.22;
+      else if (state === 'DASH') lean = 0.42;
+      else if (stanceId === 'GALE') lean = 0.14;
+      else if (stanceId === 'MOON') lean = -0.06;
+      ctx.rotate(lean);
 
-      // Legs
-      const runSwing = state === 'RUN' || state === 'CHASE' ? Math.sin(performance.now() * 0.018) * 12 : 0;
+      // 2. Articulated Two-Joint Legs (Thigh -> Knee -> Boot)
+      const stride = (state === 'RUN' || state === 'CHASE') ? Math.sin(t * 3.2) * 16 : 0;
+      ctx.strokeStyle = '#0d0f17';
+      ctx.lineWidth = 7;
+      ctx.lineCap = 'round';
+
+      // Back Leg
       ctx.beginPath();
-      ctx.moveTo(-8, -28);
-      ctx.lineTo(-12 + runSwing, 0);
-      ctx.moveTo(8, -28);
-      ctx.lineTo(12 - runSwing, 0);
+      ctx.moveTo(-6, -30);
+      ctx.lineTo(-10 - stride * 0.5, -14);
+      ctx.lineTo(-12 - stride, 0);
       ctx.stroke();
 
-      // Haori Robe Body
+      // Front Leg
       ctx.beginPath();
-      ctx.moveTo(-16, -24);
-      ctx.lineTo(-12, -62);
-      ctx.lineTo(12, -62);
-      ctx.lineTo(18, -24);
+      ctx.moveTo(6, -30);
+      ctx.lineTo(10 + stride * 0.6, -14);
+      ctx.lineTo(12 + stride, 0);
+      ctx.stroke();
+
+      // Wide Wuxia Hakama Pleats
+      ctx.fillStyle = isPlayer ? '#121622' : '#1f1219';
+      ctx.strokeStyle = accentColor;
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(-15, -34);
+      ctx.lineTo(-19 - stride * 0.4, -10);
+      ctx.lineTo(19 + stride * 0.4, -10);
+      ctx.lineTo(15, -34);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
 
-      // Head & Rurouni / Straw Kasa Hat
+      // 3. Layered Haori Torso & Crossed Sash
+      ctx.fillStyle = isPlayer ? '#192030' : '#2b141d';
+      ctx.beginPath();
+      ctx.moveTo(-13, -32);
+      ctx.lineTo(-15, -62 + breath);
+      ctx.lineTo(15, -62 + breath);
+      ctx.lineTo(13, -32);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Waist Obi Sash
+      ctx.fillStyle = accentColor;
+      ctx.fillRect(-14, -36, 28, 5);
+
+      // 4. Scabbard (Saya) at Left Hip
+      ctx.save();
+      ctx.translate(-4, -36);
+      ctx.rotate(-0.28);
+      ctx.strokeStyle = '#090b10';
+      ctx.lineWidth = 4.5;
+      ctx.beginPath();
+      ctx.moveTo(-38, 8);
+      ctx.lineTo(14, -3);
+      ctx.stroke();
+
+      // Gold Tsuba Handguard if Sheathed
+      if (sheathed) {
+        ctx.fillStyle = '#fcc419';
+        ctx.fillRect(12, -7, 4, 8);
+        if (sheathGlint > 0) {
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(4, -14);
+          ctx.lineTo(24, 6);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+
+      // 5. Head, Wuxia Topknot & Sedge Hat
       ctx.fillStyle = '#e6ccb2';
       ctx.beginPath();
-      ctx.arc(0, -70, 9, 0, Math.PI * 2);
+      ctx.arc(0, -70 + breath, 8.5, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = isPlayer ? '#1f242d' : '#3b151c';
+      // Woven Ronin Kasa Hat
+      ctx.fillStyle = isPlayer ? '#1b202e' : '#3d131b';
+      ctx.strokeStyle = accentColor;
+      ctx.lineWidth = 1.6;
       ctx.beginPath();
-      ctx.moveTo(-26, -74);
-      ctx.lineTo(0, -90);
-      ctx.lineTo(26, -74);
+      ctx.moveTo(-27, -73 + breath);
+      ctx.quadraticCurveTo(0, -93 + breath, 27, -73 + breath);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
 
-      // Glowing Eyes on Bosses
-      if (!isPlayer) {
-        ctx.fillStyle = '#ff2a2a';
-        ctx.fillRect(3, -72, 5, 3);
-      }
+      // 6. Articulated Sword Arm & Katana Blade Choreography
+      let armAngle = 0.2;
+      let bladeScale = 1.0;
 
-      // Katana Blade Pose
-      ctx.save();
-      ctx.translate(6, -48);
-      if (state === 'WINDUP' || state === 'PERILOUS') {
-        ctx.rotate(-1.9);
+      if (sheathed) {
+        armAngle = 1.1; // Left thumb resting on scabbard tsuba!
+        bladeScale = 0; // Blade is inside the scabbard
       } else if (state === 'SLASH') {
-        ctx.rotate(0.45);
+        armAngle = combo === 0 ? -0.95 : combo === 1 ? 0.75 : -0.15;
+      } else if (state === 'PLUNGE') {
+        armAngle = 1.35;
       } else if (state === 'PARRY') {
-        ctx.rotate(-0.85);
+        armAngle = -1.05;
+      } else if (state === 'WINDUP' || state === 'PERILOUS') {
+        armAngle = -1.85;
       } else {
-        ctx.rotate(0.15);
+        // Distinct Stance Idle Postures!
+        if (stanceId === 'GALE') armAngle = 2.45; // Reverse-grip low wind stance
+        else if (stanceId === 'WATER') armAngle = 0.18 + Math.sin(t * 1.5) * 0.06; // Extended fluid mid-guard
+        else if (stanceId === 'MOON') armAngle = -1.35 + Math.sin(t * 1.2) * 0.05; // High overhead Jodan guard
       }
 
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 3.2;
+      ctx.save();
+      ctx.translate(6, -54 + breath);
+      ctx.rotate(armAngle);
+
+      // Arm Segment
+      ctx.strokeStyle = '#192030';
+      ctx.lineWidth = 6;
       ctx.beginPath();
       ctx.moveTo(0, 0);
-      ctx.lineTo(48, -12);
+      ctx.lineTo(14, 0);
       ctx.stroke();
-      ctx.restore();
 
-      ctx.restore();
-
-      // Render Jinzo's Flowing Crimson Scarf in World Space
-      if (isPlayer && scarf) {
-        ctx.save();
-        ctx.strokeStyle = '#e03131';
-        ctx.lineWidth = 5;
-        ctx.lineCap = 'round';
+      // Drawn Katana Steel
+      if (bladeScale > 0) {
+        ctx.strokeStyle = '#f8f9fa';
+        ctx.shadowColor = accentColor;
+        ctx.shadowBlur = 10;
+        ctx.lineWidth = 3.2;
         ctx.beginPath();
-        scarf.forEach((pt, i) => {
-          if (i === 0) ctx.moveTo(pt.x, pt.y);
-          else ctx.lineTo(pt.x, pt.y);
-        });
+        ctx.moveTo(14, 0);
+        ctx.quadraticCurveTo(38, -3, 64, -9);
         ctx.stroke();
-        ctx.restore();
+        ctx.shadowBlur = 0;
+
+        // Record World-Space Blade Tip for Jinzo's Continuous Ribbon Trail
+        if (isPlayer) {
+          const tipLocalX = 64 * Math.cos(armAngle + lean) * facing;
+          const tipLocalY = (-54 + breath) + 64 * Math.sin(armAngle + lean);
+          const baseLocalX = 16 * Math.cos(armAngle + lean) * facing;
+          const baseLocalY = (-54 + breath) + 16 * Math.sin(armAngle + lean);
+
+          player.bladeTrail.push({
+            tx: x + tipLocalX,
+            ty: y + tipLocalY,
+            bx: x + baseLocalX,
+            by: y + baseLocalY,
+            life: (state === 'SLASH' || state === 'PLUNGE' || state === 'DOUBLE_JUMP') ? 1.0 : 0.25
+          });
+          if (player.bladeTrail.length > 10) player.bladeTrail.shift();
+        }
       }
+
+      ctx.restore();
+      ctx.restore();
+
+      // 7. Draw Front Flowing Crimson Scarf
+      if (scarfChain) drawVerletRibbon(scarfChain, isPlayer ? '#e03131' : accentColor, 5.5 * scale, 2 * scale);
     }
 
-    function render(rawDt) {
-      // Determine Current Zone Sky Palette
+    function drawBladeRibbonTrail(trail, color) {
+      if (trail.length < 3) return;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 1; i < trail.length; i++) {
+        const p0 = trail[i - 1];
+        const p1 = trail[i];
+        const alpha = (i / trail.length) * p1.life * 0.65;
+        if (alpha <= 0.02) continue;
+
+        ctx.fillStyle = color;
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.moveTo(p0.bx, p0.by);
+        ctx.lineTo(p0.tx, p0.ty);
+        ctx.lineTo(p1.tx, p1.ty);
+        ctx.lineTo(p1.bx, p1.by);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function renderWorld(rawDt) {
       let curZone = ZONES[0];
       for (const z of ZONES) {
-        if (player.x >= z.xStart && player.x < z.xEnd) { curZone = z; break; }
+        if (player.x >= z.x0 && player.x < z.x1) { curZone = z; break; }
       }
 
-      // 1. Sky Gradient & Eclipse Moon
-      const skyGrad = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
-      skyGrad.addColorStop(0, curZone.skyTop);
-      skyGrad.addColorStop(1, curZone.skyBot);
-      ctx.fillStyle = skyGrad;
+      // 1. Atmospheric Sky Gradient & Celestial Moon
+      const grad = ctx.createLinearGradient(0, 0, 0, BASE_GROUND);
+      grad.addColorStop(0, curZone.sky0);
+      grad.addColorStop(1, curZone.sky1);
+      ctx.fillStyle = grad;
       ctx.fillRect(0, 0, W, H);
 
-      // Moon with Outer Glow
-      const moonX = W * 0.72 - (cameraX * 0.03);
-      const moonY = H * 0.24;
+      const moonX = W * 0.74 - cameraX * 0.025;
+      const moonY = H * 0.22;
       ctx.save();
       ctx.shadowColor = curZone.moonCol;
-      ctx.shadowBlur = 45;
+      ctx.shadowBlur = 50;
       ctx.fillStyle = curZone.moonCol;
       ctx.beginPath();
-      ctx.arc(moonX, moonY, curZone.moonRadius, 0, Math.PI * 2);
+      ctx.arc(moonX, moonY, curZone.r, 0, Math.PI * 2);
       ctx.fill();
       if (curZone.id === 3) {
-        // Eclipse Dark Inner Core in Zone 4
         ctx.fillStyle = '#090205';
         ctx.beginPath();
-        ctx.arc(moonX - 8, moonY - 4, curZone.moonRadius * 0.84, 0, Math.PI * 2);
+        ctx.arc(moonX - 9, moonY - 4, curZone.r * 0.84, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.restore();
 
-      // 2. Distant Parallax Mountains
-      ctx.fillStyle = 'rgba(10, 13, 22, 0.75)';
-      ctx.beginPath();
-      ctx.moveTo(0, GROUND_Y);
-      for (let sx = 0; sx <= W + 80; sx += 80) {
-        const wx = sx + cameraX * 0.18;
-        const mh = 110 + Math.sin(wx * 0.004) * 55 + Math.cos(wx * 0.009) * 35;
-        ctx.lineTo(sx, GROUND_Y - mh);
-      }
-      ctx.lineTo(W, GROUND_Y);
-      ctx.closePath();
-      ctx.fill();
-
-      // Apply Screen Shake & Camera Offset
-      ctx.save();
-      const shakeX = (Math.random() - 0.5) * screenShake;
-      const shakeY = (Math.random() - 0.5) * screenShake;
-      screenShake = Math.max(0, screenShake - rawDt * 45);
-      ctx.translate(-cameraX + shakeX, shakeY);
-
-      // 3. Draw Torii Gates
-      toriiGates.forEach(tx => {
-        if (Math.abs(tx - player.x) > W) return;
-        ctx.fillStyle = '#8f1d1d';
-        ctx.fillRect(tx - 55, GROUND_Y - 190, 12, 190);
-        ctx.fillRect(tx + 43, GROUND_Y - 190, 12, 190);
-        ctx.fillStyle = '#14161c';
-        ctx.fillRect(tx - 78, GROUND_Y - 202, 156, 16);
-        ctx.fillStyle = '#8f1d1d';
-        ctx.fillRect(tx - 62, GROUND_Y - 165, 124, 10);
+      // 2. Multi-Layer Parallax Mountain Ridges
+      [0.12, 0.26].forEach((pFactor, idx) => {
+        ctx.fillStyle = idx === 0 ? 'rgba(9, 12, 20, 0.65)' : 'rgba(14, 18, 29, 0.85)';
+        ctx.beginPath();
+        ctx.moveTo(0, BASE_GROUND);
+        for (let sx = 0; sx <= W + 80; sx += 70) {
+          const wx = sx + cameraX * pFactor;
+          const mh = (idx === 0 ? 180 : 105) + Math.sin(wx * 0.0035 + idx) * 65 + Math.cos(wx * 0.008) * 35;
+          ctx.lineTo(sx, BASE_GROUND - mh);
+        }
+        ctx.lineTo(W, BASE_GROUND);
+        ctx.closePath();
+        ctx.fill();
       });
 
-      // 4. Draw Sliceable Bamboo Grove (Zone 2)
-      bambooStalks.forEach(b => {
-        if (Math.abs(b.x - player.x) > W) return;
-        ctx.fillStyle = '#2b593f';
+      // Camera & Screen Shake Transform
+      ctx.save();
+      const sx = (Math.random() - 0.5) * camShake;
+      const sy = (Math.random() - 0.5) * camShake;
+      camShake = Math.max(0, camShake - rawDt * 48);
+      ctx.translate(-cameraX + sx, sy);
+
+      // 3. Draw Bamboo Forest with Sway & Cut Physics (Zone 2)
+      const nowSec = performance.now() * 0.002;
+      bambooForest.forEach(b => {
+        if (Math.abs(b.x - player.x) > W * 0.85) return;
+        const sway = Math.sin(nowSec + b.swayPhase) * 6;
+        ctx.strokeStyle = '#26543b';
+        ctx.lineWidth = b.thick;
         if (!b.sliced) {
-          ctx.fillRect(b.x, GROUND_Y - b.h, b.thick, b.h);
+          ctx.beginPath();
+          ctx.moveTo(b.x, BASE_GROUND);
+          ctx.quadraticCurveTo(b.x + sway * 0.5, BASE_GROUND - b.h * 0.5, b.x + sway, BASE_GROUND - b.h);
+          ctx.stroke();
         } else {
-          ctx.fillRect(b.x, GROUND_Y - 48, b.thick, 48);
-          if (b.topY < GROUND_Y) {
-            b.topVy += 480 * rawDt;
+          ctx.beginPath();
+          ctx.moveTo(b.x, BASE_GROUND);
+          ctx.lineTo(b.x, BASE_GROUND - 52);
+          ctx.stroke();
+          if (b.topY < BASE_GROUND) {
+            b.topVy += 520 * rawDt;
             b.topY += b.topVy * rawDt;
-            b.topRot += 2.5 * rawDt;
+            b.topRot += 2.6 * rawDt;
             ctx.save();
             ctx.translate(b.x, b.topY);
             ctx.rotate(b.topRot);
-            ctx.fillRect(0, -90, b.thick, 90);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, -95);
+            ctx.stroke();
             ctx.restore();
           }
         }
       });
 
-      // 5. Draw Jizo Shrines & Obsidian Lotus Core
+      // 4. Draw Walkable Multi-Tier Platforms (Curved Pagoda Roofs, Ship Decks, Bamboo Crowns)
+      platforms.forEach(p => {
+        if (Math.abs(p.x - player.x) > W) return;
+        const py = BASE_GROUND - p.hOffset;
+        const left = p.x - p.w / 2;
+        const right = p.x + p.w / 2;
+
+        if (p.type === 'pagoda') {
+          // Support Pillars
+          ctx.fillStyle = '#5c1616';
+          ctx.fillRect(left + 22, py, 10, p.hOffset);
+          ctx.fillRect(right - 32, py, 10, p.hOffset);
+          // Sweeping Upturned Wuxia Eaves
+          ctx.fillStyle = '#161922';
+          ctx.strokeStyle = '#fcc419';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(left - 24, py - 14);
+          ctx.quadraticCurveTo(p.x, py + 12, right + 24, py - 14);
+          ctx.lineTo(right, py + 10);
+          ctx.lineTo(left, py + 10);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        } else if (p.type === 'bamboo') {
+          ctx.strokeStyle = '#38d9a9';
+          ctx.lineWidth = 6;
+          ctx.beginPath();
+          ctx.moveTo(left, py);
+          ctx.quadraticCurveTo(p.x, py + 6, right, py);
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = p.type === 'stone' ? '#251c33' : '#2e221d';
+          ctx.strokeStyle = 'rgba(252, 196, 25, 0.45)';
+          ctx.lineWidth = 2;
+          ctx.fillRect(left, py, p.w, 14);
+          ctx.strokeRect(left, py, p.w, 14);
+        }
+      });
+
+      // 5. Shrines, Mystic Kiri & Obsidian Lotus Core
       shrines.forEach(s => {
+        const sy = BASE_GROUND - (s.hOffset || 0);
         ctx.fillStyle = s.isKiri ? '#3b4d54' : '#5c646d';
-        ctx.fillRect(s.x - 16, GROUND_Y - 48, 32, 48);
+        ctx.fillRect(s.x - 15, sy - 46, 30, 46);
         ctx.beginPath();
-        ctx.arc(s.x, GROUND_Y - 58, 13, 0, Math.PI * 2);
+        ctx.arc(s.x, sy - 56, 12, 0, Math.PI * 2);
         ctx.fill();
-        // Glowing Shrine Lantern Flame
-        ctx.fillStyle = s.isKiri ? '#63e6be' : '#fcc419';
+        ctx.fillStyle = s.isKiri ? '#38d9a9' : '#fcc419';
         ctx.beginPath();
-        ctx.arc(s.x, GROUND_Y - 34 + Math.sin(performance.now() * 0.008) * 3, 6, 0, Math.PI * 2);
+        ctx.arc(s.x, sy - 32 + Math.sin(nowSec * 3) * 3, 6, 0, Math.PI * 2);
         ctx.fill();
       });
 
-      // Pulsating Obsidian Lotus Core at X = 6220
-      const pulse = Math.sin(performance.now() * 0.005) * 8;
+      // Floating Obsidian Lotus Core at X = 9650
       ctx.save();
-      ctx.translate(lotusCore.x, GROUND_Y - 95 + pulse);
-      ctx.fillStyle = '#ae3ec9';
+      ctx.translate(lotusRelic.x, BASE_GROUND - 110 + Math.sin(nowSec * 2) * 10);
+      ctx.fillStyle = '#be4bdb';
       ctx.shadowColor = '#e599f7';
       ctx.shadowBlur = 35;
       for (let i = 0; i < 6; i++) {
         ctx.rotate(Math.PI / 3);
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.lineTo(-16, -42);
-        ctx.lineTo(0, -64);
-        ctx.lineTo(16, -42);
+        ctx.lineTo(-16, -44);
+        ctx.lineTo(0, -68);
+        ctx.lineTo(16, -44);
         ctx.closePath();
         ctx.fill();
       }
       ctx.restore();
 
-      // 6. Ground Floor & Mirror Lake Reflections (Zone 3)
-      ctx.fillStyle = curZone.id === 2 ? '#0b192e' : '#0b0d14';
-      ctx.fillRect(cameraX - 100, GROUND_Y, W + 200, H - GROUND_Y + 100);
-      ctx.strokeStyle = curZone.id === 2 ? '#3bc9db' : 'rgba(255,255,255,0.18)';
+      // 6. Ground Plane & Mirror Lake Water Reflections (Zone 3)
+      ctx.fillStyle = curZone.id === 2 ? '#08182b' : '#090b12';
+      ctx.fillRect(cameraX - 100, BASE_GROUND, W + 200, H - BASE_GROUND + 100);
+      ctx.strokeStyle = curZone.id === 2 ? '#22b8cf' : 'rgba(255,255,255,0.2)';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(cameraX - 100, GROUND_Y);
-      ctx.lineTo(cameraX + W + 100, GROUND_Y);
+      ctx.moveTo(cameraX - 100, BASE_GROUND);
+      ctx.lineTo(cameraX + W + 100, BASE_GROUND);
       ctx.stroke();
 
-      // Mirror Reflection of Jinzo in Zone 3
-      if (player.x > 3150 && player.x < 4850) {
+      // Planar Water Reflection in Zone 3
+      if (player.x > 4950 && player.x < 7550 && player.h < 90) {
         ctx.save();
-        ctx.globalAlpha = 0.26;
-        ctx.translate(0, GROUND_Y * 2);
+        ctx.globalAlpha = 0.25;
+        ctx.translate(0, BASE_GROUND * 2);
         ctx.scale(1, -1);
-        drawSamurai2D(player.x, GROUND_Y, player.facing, 1.0, STANCES[player.stanceIdx].color, player.state, true, null);
+        drawWuxiaWarrior({
+          x: player.x,
+          y: BASE_GROUND - player.h,
+          facing: player.facing,
+          scale: 1.05,
+          accentColor: STANCES[player.stanceIdx].color,
+          state: player.state,
+          stanceId: STANCES[player.stanceIdx].id,
+          sheathed: player.sheathed,
+          isPlayer: false
+        });
         ctx.restore();
       }
 
       // 7. Draw Enemies
       enemies.forEach(e => {
         if (e.dead || Math.abs(e.x - player.x) > W) return;
-        drawSamurai2D(e.x, GROUND_Y, e.facing, e.scale || 1.0, e.color, e.state, false, null);
+        const eY = BASE_GROUND - e.h;
+        drawWuxiaWarrior({
+          x: e.x,
+          y: eY,
+          facing: e.facing,
+          scale: e.scale || 1.0,
+          accentColor: e.color,
+          state: e.state,
+          stanceId: 'WATER',
+          isPlayer: false,
+          scarfChain: e.scarf
+        });
 
-        // Enemy Overhead Mini Health Bar
         if (!e.isBoss && e.hp < e.maxHp) {
-          ctx.fillStyle = 'rgba(0,0,0,0.7)';
-          ctx.fillRect(e.x - 26, GROUND_Y - 105, 52, 6);
-          ctx.fillStyle = '#ff3b3b';
-          ctx.fillRect(e.x - 25, GROUND_Y - 104, 50 * Math.max(0, e.hp / e.maxHp), 4);
+          ctx.fillStyle = 'rgba(0,0,0,0.75)';
+          ctx.fillRect(e.x - 26, eY - 105, 52, 6);
+          ctx.fillStyle = '#ff4d4d';
+          ctx.fillRect(e.x - 25, eY - 104, 50 * Math.max(0, e.hp / e.maxHp), 4);
         }
 
-        // Enemy Slash Arc
-        if (e.slashArcAlpha > 0) {
+        if (e.slashAlpha > 0) {
           ctx.save();
-          ctx.strokeStyle = `rgba(255, 59, 59, ${e.slashArcAlpha})`;
-          ctx.lineWidth = 7;
+          ctx.strokeStyle = `rgba(255, 77, 77, ${e.slashAlpha})`;
+          ctx.lineWidth = 8;
           ctx.beginPath();
-          ctx.arc(e.x, GROUND_Y - 45, 72 * (e.scale || 1), -0.7, 0.7);
+          ctx.arc(e.x, eY - 48, 76 * (e.scale || 1), -0.75, 0.75);
           ctx.stroke();
           ctx.restore();
         }
       });
 
-      // 8. Draw Jinzo (Player)
-      drawSamurai2D(
-        player.x,
-        GROUND_Y,
-        player.facing,
-        1.05,
-        STANCES[player.stanceIdx].color,
-        player.state,
-        true,
-        player.scarfPoints
-      );
+      // 8. Draw Jinzo & His Continuous Catmull-Rom/Bézier Blade Ribbon
+      const st = STANCES[player.stanceIdx];
+      drawBladeRibbonTrail(player.bladeTrail, st.trailCol);
+      player.bladeTrail.forEach(pt => { pt.life = Math.max(0, pt.life - rawDt * 4.2); });
 
-      // Parry Shield Ring Indicator
+      const playerWorldY = BASE_GROUND - player.h;
+      drawWuxiaWarrior({
+        x: player.x,
+        y: playerWorldY,
+        facing: player.facing,
+        scale: 1.06,
+        accentColor: st.color,
+        state: player.state,
+        stanceId: st.id,
+        sheathed: player.sheathed,
+        sheathGlint: player.sheathSparkTimer,
+        combo: player.combo,
+        isPlayer: true,
+        hairChain: player.hairChain,
+        scarfChain: player.scarfChain,
+        coatChain: player.coatChain
+      });
+
+      // Deflect Parry Golden Aura Ring
       if (player.parryWindow > 0) {
         ctx.strokeStyle = '#fcc419';
         ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.arc(player.x + player.facing * 18, GROUND_Y - 46, 46, 0, Math.PI * 2);
+        ctx.arc(player.x + player.facing * 16, playerWorldY - 48, 48, 0, Math.PI * 2);
         ctx.stroke();
       }
 
-      // 9. Draw Sakuga Crescent Slash Smears
-      for (let i = slashSmears.length - 1; i >= 0; i--) {
-        const s = slashSmears[i];
-        s.life -= rawDt;
-        if (s.life <= 0) { slashSmears.splice(i, 1); continue; }
-        const alpha = s.life / s.maxLife;
+      // 9. Draw Expanding Shockwave Rings
+      for (let i = shockwaves.length - 1; i >= 0; i--) {
+        const sw = shockwaves[i];
+        sw.r += (sw.maxR - sw.r) * 0.22;
+        sw.alpha -= rawDt * 3.2;
+        if (sw.alpha <= 0) { shockwaves.splice(i, 1); continue; }
         ctx.save();
-        ctx.translate(s.x, s.y);
-        ctx.scale(s.facing, s.combo === 1 ? -1 : 1);
-        ctx.strokeStyle = s.color;
-        ctx.globalAlpha = alpha;
-        ctx.lineWidth = 14 * alpha;
+        ctx.strokeStyle = sw.color;
+        ctx.globalAlpha = sw.alpha;
+        ctx.lineWidth = 3.5;
         ctx.beginPath();
-        ctx.arc(0, 0, 78, -0.85, 0.85);
+        ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
         ctx.stroke();
         ctx.restore();
       }
 
-      // 10. Draw Sparks & Blood/Ink Particles
+      // 10. Draw Sparks & Popups
       for (let i = sparks.length - 1; i >= 0; i--) {
-        const p = sparks[i];
-        p.life -= rawDt;
-        if (p.life <= 0) { sparks.splice(i, 1); continue; }
-        p.x += p.vx * rawDt;
-        p.y += p.vy * rawDt;
-        p.vy += 420 * rawDt;
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = p.life / p.maxLife;
-        ctx.fillRect(p.x, p.y, p.size, p.size);
+        const sp = sparks[i];
+        sp.life -= rawDt;
+        if (sp.life <= 0) { sparks.splice(i, 1); continue; }
+        sp.x += sp.vx * rawDt;
+        sp.y += sp.vy * rawDt;
+        sp.vy += 460 * rawDt;
+        ctx.fillStyle = sp.color;
+        ctx.globalAlpha = sp.life / sp.maxLife;
+        ctx.fillRect(sp.x, sp.y, sp.r, sp.r);
       }
       ctx.globalAlpha = 1;
 
-      // 11. Draw Floating Combat Kanji / Numbers
-      for (let i = floatingTexts.length - 1; i >= 0; i--) {
-        const ft = floatingTexts[i];
-        ft.life -= rawDt;
-        if (ft.life <= 0) { floatingTexts.splice(i, 1); continue; }
-        ft.y -= 38 * rawDt;
+      for (let i = popups.length - 1; i >= 0; i--) {
+        const pp = popups[i];
+        pp.life -= rawDt;
+        if (pp.life <= 0) { popups.splice(i, 1); continue; }
+        pp.y -= 42 * rawDt;
         ctx.save();
-        ctx.font = `bold ${Math.round(16 * ft.scale)}px Georgia, serif`;
-        ctx.fillStyle = ft.color;
-        ctx.globalAlpha = Math.min(1, ft.life * 1.5);
+        ctx.font = `bold ${Math.round(16 * pp.scale)}px Georgia, serif`;
+        ctx.fillStyle = pp.color;
+        ctx.globalAlpha = Math.min(1, pp.life * 1.6);
         ctx.textAlign = 'center';
-        ctx.fillText(ft.text, ft.x, ft.y);
+        ctx.fillText(pp.text, pp.x, pp.y);
         ctx.restore();
       }
 
-      ctx.restore(); // End World Camera Transform
+      ctx.restore(); // End Camera Space
 
-      // 12. Screen-Space Cherry Blossoms / Ash Particles
-      ctx.fillStyle = curZone.id === 3 ? 'rgba(255, 90, 90, 0.7)' : 'rgba(255, 210, 220, 0.65)';
-      petals.forEach(pt => {
-        pt.x += pt.vx * rawDt;
-        pt.y += pt.vy * rawDt;
-        if (pt.x < 0) pt.x = W;
-        if (pt.y > H) pt.y = -10;
-        ctx.fillRect(pt.x, pt.y, pt.size, pt.size * 0.7);
+      // 11. Foreground 1.35x Parallax Silhouette Pillars (Depth Framing)
+      ctx.fillStyle = 'rgba(3, 4, 8, 0.86)';
+      fgSilhouettes.forEach(fg => {
+        const screenX = fg.x - cameraX * 1.35;
+        if (screenX > -120 && screenX < W + 120) {
+          ctx.fillRect(screenX, 0, fg.w, H);
+        }
       });
 
-      // 13. Anime Ultimate Cut-In Speed-Lines Banner (Hiken)
-      if (ultCutInTimer > 0) {
-        ultCutInTimer -= rawDt;
+      // 12. Wind-Blown Leaves & Cherry Blossoms (Reacting to Sword Wind-Shear!)
+      ctx.fillStyle = curZone.id === 1 ? 'rgba(116, 242, 186, 0.72)' : curZone.id === 3 ? 'rgba(255, 85, 85, 0.75)' : 'rgba(255, 210, 220, 0.7)';
+      windLeaves.forEach(lf => {
+        lf.x += lf.vx * rawDt;
+        lf.y += lf.vy * rawDt;
+        lf.vx += (-55 - lf.vx) * rawDt * 1.5;
+        lf.vy += (32 - lf.vy) * rawDt * 1.5;
+        lf.rot += lf.vRot * rawDt;
+        if (lf.x < -20) lf.x = W + 15;
+        if (lf.x > W + 25) lf.x = -15;
+        if (lf.y > H + 15) lf.y = -15;
+
         ctx.save();
-        ctx.fillStyle = 'rgba(18, 4, 28, 0.88)';
-        ctx.fillRect(0, H * 0.28, W, H * 0.24);
+        ctx.translate(lf.x, lf.y);
+        ctx.rotate(lf.rot);
+        ctx.fillRect(-lf.size / 2, -lf.size / 2, lf.size, lf.size * 0.6);
+        ctx.restore();
+      });
+
+      // 13. Anime Ultimate Cut-In Banner
+      if (hikenBannerTimer > 0) {
+        hikenBannerTimer -= rawDt;
+        ctx.save();
+        ctx.fillStyle = 'rgba(14, 4, 24, 0.9)';
+        ctx.fillRect(0, H * 0.28, W, H * 0.22);
         ctx.strokeStyle = '#fcc419';
         ctx.lineWidth = 3;
-        ctx.strokeRect(0, H * 0.28, W, H * 0.24);
-
-        ctx.fillStyle = '#f4efe6';
-        ctx.font = `bold ${Math.max(22, Math.floor(W * 0.042))}px Georgia, serif`;
+        ctx.strokeRect(0, H * 0.28, W, H * 0.22);
+        ctx.fillStyle = '#f3ede2';
+        ctx.font = `bold ${Math.max(20, Math.floor(W * 0.04))}px Georgia, serif`;
         ctx.textAlign = 'center';
-        ctx.fillText('秘剣 • OBSIDIAN ECLIPSE SLASH!', W * 0.5, H * 0.42);
+        ctx.fillText('秘剣 • OBSIDIAN ECLIPSE HIKEN!', W * 0.5, H * 0.41);
         ctx.restore();
       }
 
-      // 14. Chromatic Impact Flash
-      if (screenFlashAlpha > 0) {
-        ctx.fillStyle = screenFlashColor;
-        ctx.globalAlpha = screenFlashAlpha;
+      // 14. Impact Flash Overlay
+      if (impactFlashAlpha > 0) {
+        ctx.fillStyle = impactFlashColor;
+        ctx.globalAlpha = impactFlashAlpha;
         ctx.fillRect(0, 0, W, H);
         ctx.globalAlpha = 1;
-        screenFlashAlpha = Math.max(0, screenFlashAlpha - rawDt * 2.8);
+        impactFlashAlpha = Math.max(0, impactFlashAlpha - rawDt * 3.0);
       }
     }
 
-    let lastTime = performance.now();
-    function loop(now) {
-      requestAnimationFrame(loop);
-      const rawDt = Math.min((now - lastTime) / 1000, 0.05);
-      lastTime = now;
+    let prevNow = performance.now();
+    function mainLoop(now) {
+      requestAnimationFrame(mainLoop);
+      const rawDt = Math.min((now - prevNow) / 1000, 0.05);
+      prevNow = now;
 
-      if (hitStopTimer > 0) {
-        hitStopTimer -= rawDt;
-        render(rawDt * 0.15);
+      if (hitStop > 0) {
+        hitStop -= rawDt;
+        renderWorld(rawDt * 0.15);
         return;
       }
 
-      update(rawDt);
-      render(rawDt);
+      updateGame(rawDt);
+      renderWorld(rawDt);
     }
-    requestAnimationFrame(loop);
+    requestAnimationFrame(mainLoop);
   </script>
 </body>
 </html>
